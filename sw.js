@@ -1,5 +1,8 @@
-/* Auto Editor Tools - service worker (cache-first, 100% offline) */
-const CACHE = 'aet-v2';
+/* Auto Editor Tools - service worker
+   - Ficheiros da app: REDE PRIMEIRO (atualizações aparecem sozinhas quando há internet)
+     e CACHE se estiveres offline.
+   - Tailwind (CDN): cache primeiro (guardado na 1.ª abertura com internet). */
+const CACHE = 'aet-v3';
 const ASSETS = [
   "./",
   "fonts/Inter-Bold.woff",
@@ -26,13 +29,17 @@ const ASSETS = [
   "tools/srt-tw-local.css",
   "tools/srt.html"
 ];
-/* Único recurso externo: o Tailwind (CDN). É guardado na 1.ª abertura com internet. */
 const EXTERNAL = ['https://cdn.tailwindcss.com'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil((async () => {
     const c = await caches.open(CACHE);
-    await c.addAll(ASSETS);
+    // cache:'reload' ignora a cache HTTP do navegador, para nunca guardar versões antigas
+    await Promise.all(ASSETS.map(async (u) => {
+      const r = await fetch(new Request(u, { cache: 'reload' }));
+      if (!r.ok) throw new Error('Falhou: ' + u);
+      await c.put(u, r);
+    }));
     for (const url of EXTERNAL) {
       try { const r = await fetch(url); if (r.ok) { await c.put(url, r); continue; } } catch (_) {}
       try { const r = await fetch(url, { mode: 'no-cors' }); await c.put(url, r); } catch (_) {}
@@ -52,18 +59,27 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET') return;
-  const url = new URL(req.url);
-  const external = url.origin !== location.origin;
+  const external = new URL(req.url).origin !== location.origin;
   if (external && !EXTERNAL.some((u) => req.url.startsWith(u))) return;
   e.respondWith((async () => {
-    const hit = await caches.match(req, { ignoreSearch: true });
-    if (hit) return hit;
+    const cache = await caches.open(CACHE);
+    if (external) {
+      const hit = await cache.match(req);
+      if (hit) return hit;
+      try { const r = await fetch(req); if (r && (r.ok || r.type === 'opaque')) cache.put(req, r.clone()); return r; }
+      catch (_) { return Response.error(); }
+    }
     try {
-      const res = await fetch(req);
-      if (res && (res.ok || res.type === 'opaque')) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); }
+      const res = await Promise.race([
+        fetch(req, { cache: 'no-cache' }),
+        new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 4000))
+      ]);
+      if (res && res.ok) cache.put(req, res.clone());
       return res;
-    } catch (err) {
-      if (req.mode === 'navigate') { const idx = await caches.match('index.html'); if (idx) return idx; }
+    } catch (_) {
+      const hit = await cache.match(req, { ignoreSearch: true });
+      if (hit) return hit;
+      if (req.mode === 'navigate') { const idx = await cache.match('index.html'); if (idx) return idx; }
       return Response.error();
     }
   })());

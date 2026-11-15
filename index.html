@@ -904,6 +904,15 @@ body.in-tool #toolStatusText{display:block;max-width:44vw;overflow:hidden;text-o
 
     // ---------- Service worker ----------
     if ('serviceWorker' in navigator) {
+      var hadController = !!navigator.serviceWorker.controller;
+      navigator.serviceWorker.addEventListener('controllerchange', function () {
+        if (!hadController || document.getElementById('updBanner')) return;
+        var d = document.createElement('div'); d.id = 'updBanner';
+        d.style.cssText = 'position:fixed;left:50%;transform:translateX(-50%);bottom:calc(72px + env(safe-area-inset-bottom,0px));z-index:200;display:flex;gap:12px;align-items:center;padding:10px 14px;border-radius:14px;background:#0F182B;border:1px solid #38bdf8;color:#e2e8f0;font:600 13px Inter,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.5)';
+        d.innerHTML = '<span>Nova versão disponível</span><button type="button" style="background:#2563EB;color:#fff;border:0;border-radius:9px;padding:7px 12px;font:inherit;cursor:pointer">Atualizar</button>';
+        d.querySelector('button').onclick = function () { location.reload(); };
+        document.body.appendChild(d);
+      });
       window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function (e) { console.warn('SW falhou:', e); }); });
     }
   })();
