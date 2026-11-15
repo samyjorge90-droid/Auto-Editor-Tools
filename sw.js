@@ -2,7 +2,7 @@
    - Ficheiros da app: REDE PRIMEIRO (atualizações aparecem sozinhas quando há internet)
      e CACHE se estiveres offline.
    - Tailwind (CDN): cache primeiro (guardado na 1.ª abertura com internet). */
-const CACHE = 'aet-v3';
+const CACHE = 'aet-v4';
 const ASSETS = [
   "./",
   "fonts/Inter-Bold.woff",
