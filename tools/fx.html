@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Criador de Ficheiros FX</title>
+  <!-- Tailwind CSS CDN -->
+  <link rel="stylesheet" href="../fonts/fonts.css">
+<script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome Icons -->
+  <!-- Google Fonts - Inter & JetBrains Mono -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#fff7ed',
+              100: '#ffedd5',
+              400: '#fb923c',
+              500: '#f97316',
+              600: '#ea580c',
+              700: '#c2410c',
+              900: '#7c2d12',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #0b0f17;
+      color: #e2e8f0;
+      font-family: 'Inter', sans-serif;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+  </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex flex-col p-3 md:p-5 bg-slate-950 text-slate-100 antialiased selection:bg-brand-500 selection:text-white">
+
+  <!-- Main Split Layout Container -->
+  <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 h-full max-w-[1600px] w-full mx-auto overflow-hidden">
+    
+    <!-- LADO ESQUERDO: Painel de Controlo, Ferramentas e Histórico (4 colunas em desktop) -->
+    <aside class="lg:col-span-4 flex flex-col gap-4 h-full overflow-y-auto custom-scrollbar">
+      
+      <!-- Card Topo: Logótipo FXFX & Seleção de Pasta -->
+      <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-xl space-y-4">
+        
+        <!-- Logo Header -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-brand-500/15 border border-brand-500/30 flex items-center justify-center text-brand-400 shadow-lg shadow-brand-500/10">
+              <div class="relative">
+                <svg class="text-lg" style="width:1em;height:1em;display:inline-block;vertical-align:-0.125em" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M338.8-9.9c11.9 8.6 16.3 24.2 10.9 37.8L271.3 224H416c13.5 0 25.5 8.4 30.1 21.1s.7 26.9-9.6 35.5l-288 240c-11.3 9.4-27.4 9.9-39.3 1.3s-16.3-24.2-10.9-37.8L176.7 288H32c-13.5 0-25.5-8.4-30.1-21.1s-.7-26.9 9.6-35.5l288-240c11.3-9.4 27.4-9.9 39.3-1.3"/></svg>
+                <svg class="text-[10px] absolute -top-1 -right-1 text-amber-300" style="width:1em;height:1em;display:inline-block;vertical-align:-0.125em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path d="m263.4-27 14.8 36.8L315 24.6c3 1.2 5 4.2 5 7.4s-2 6.2-5 7.4l-36.8 14.8L263.4 91c-1.2 3-4.2 5-7.4 5s-6.2-2-7.4-5l-14.8-36.8L197 39.4c-3-1.2-5-4.2-5-7.4s2-6.2 5-7.4l36.8-14.8L248.6-27c1.2-3 4.2-5 7.4-5s6.2 2 7.4 5M110.7 41.7l21.5 50.1 50.1 21.5c5.9 2.5 9.7 8.3 9.7 14.7s-3.8 12.2-9.7 14.7l-50.1 21.5-21.5 50.1c-2.5 5.9-8.3 9.7-14.7 9.7s-12.2-3.8-14.7-9.7l-21.5-50.1-50.1-21.5C3.8 140.2 0 134.4 0 128s3.8-12.2 9.7-14.7l50.1-21.5 21.5-50.1C83.8 35.8 89.6 32 96 32s12.2 3.8 14.7 9.7M464 304c6.4 0 12.2 3.8 14.7 9.7l21.5 50.1 50.1 21.5c5.9 2.5 9.7 8.3 9.7 14.7s-3.8 12.2-9.7 14.7l-50.1 21.5-21.5 50.1c-2.5 5.9-8.3 9.7-14.7 9.7s-12.2-3.8-14.7-9.7l-21.5-50.1-50.1-21.5c-5.9-2.5-9.7-8.3-9.7-14.7s3.8-12.2 9.7-14.7l50.1-21.5 21.5-50.1c2.5-5.9 8.3-9.7 14.7-9.7M460 0c11 0 21.6 4.4 29.5 12.2l42.3 42.3C539.6 62.4 544 73 544 84s-4.4 21.6-12.2 29.5l-88.2 88.2-101.3-101.3 88.2-88.2C438.4 4.4 449 0 460 0M44.2 398.5l264.2-264.2 101.3 101.3-264.2 264.2C137.6 507.6 127 512 116 512s-21.6-4.4-29.5-12.2l-42.3-42.3C36.4 449.6 32 439 32 428s4.4-21.6 12.2-29.5"/></svg>
+              </div>
+            </div>
+            <div>
+              <h1 class="text-base font-bold text-white tracking-tight flex items-center gap-1.5">
+                FXFX <span class="text-slate-400 font-normal text-xs">| Efeitos FX</span>
+              </h1>
+              <p class="text-[11px] text-slate-400">Criador ultrarrápido de ficheiros</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botão Escolher Pasta -->
+        <button id="btn-select-dir" class="w-full flex items-center justify-between bg-slate-950 hover:bg-slate-800/80 text-slate-300 text-xs font-medium py-2.5 px-3.5 rounded-xl border border-slate-800 transition active:scale-98">
+          <span class="flex items-center gap-2 truncate">
+            <svg class="text-brand-400" style="width:1em;height:1em;display:inline-block;vertical-align:-0.125em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path d="m97.5 400 50-160h379.4l-50 160zm190.7 48H477c21 0 39.6-13.6 45.8-33.7l50-160c9.7-30.9-13.4-62.3-45.8-62.3H147.6c-21 0-39.6 13.6-45.8 33.7l-21.6 68.7V96c0-8.8 7.2-16 16-16h138.7c3.5 0 6.8 1.1 9.6 3.2l38.4 28.8c13.8 10.4 30.7 16 48 16h117.3c8.8 0 16 7.2 16 16h48c0-35.3-28.7-64-64-64H330.9c-6.9 0-13.7-2.2-19.2-6.4l-38.4-28.8C262.2 36.5 248.8 32 234.9 32H96.2c-35.3 0-64 28.7-64 64v288c0 35.3 28.7 64 64 64z"/></svg>
+            <span id="dir-label" class="truncate">Pasta de Destino (Downloads)</span>
+          </span>
+          <svg class="text-[10px] text-slate-500" style="width:1em;height:1em;display:inline-block;vertical-align:-0.125em" viewBox="0 0 320 512" fill="currentColor" aria-hidden="true"><path d="M311.1 233.4c12.5 12.5 12.5 32.8 0 45.3l-192 192c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L243.2 256 73.9 86.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l192 192z"/></svg>
+        </button>
+
+        <!-- Seletor de Modo (Auto vs Manual) -->
+        <div class="space-y-1.5">
+          <label class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Modo de Operação</label>
+          <div class="bg-slate-950 p-1 rounded-xl border border-slate-800 grid grid-cols-2 gap-1">
+            <button id="mode-auto" class="py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition bg-brand-600 text-white shadow">
+              <svg class="text-[10px]" style="width:1em;height:1em;display:inline-block;vertical-align:-0.125em" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M338.8-9.9c11.9 8.6 16.3 24.2 10.9 37.8L271.3 224H416c13.5 0 25.5 8.4 30.1 21.1s.7 26.9-9.6 35.5l-288 240c-11.3 9.4-27.4 9.9-39.3 1.3s-16.3-24.2-10.9-37.8L176.7 288H32c-13.5 0-25.5-8.4-30.1-21.1s-.7-26.9 9.6-35.5l288-240c11.3-9.4 27.4-9.9 39.3-1.3"/></svg>
+              <span>Auto (Ao colar)</span>
+            </button>
+            <button id="mode-manual" class="py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition text-slate-400 hover:text-slate-200">
+              <svg class="text-[10px]" style="width:1em;height:1em;display:inline-block;vertical-align:-0.125em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path d="M64 64C28.7 64 0 92.7 0 128v256c0 35.3 28.7 64 64 64h448c35.3 0 64-28.7 64-64V128c0-35.3-28.7-64-64-64zm16 64h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16v-32c0-8.8 7.2-16 16-16M64 240c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16zm112-112h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16h-32c-8.8 0-16-7.2-16-16v-32c0-8.8 7.2-16 16-16m-16 112c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16h-32c-8.8 0-16-7.2-16-16zm16 80h224c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H176c-8.8 0-16-7.2-16-16v-32c0-8.8 7.2-16 16-16m80-176c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16h-32c-8.8 0-16-7.2-16-16zm16 80h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16h-32c-8.8 0-16-7.2-16-16v-32c0-8.8 7.2-16 16-16m80-80c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16h-32c-8.8 0-16-7.2-16-16zm16 80h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16h-32c-8.8 0-16-7.2-16-16v-32c0-8.8 7.2-16 16-16m80-80c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16h-32c-8.8 0-16-7.2-16-16zm16 80h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16h-32c-8.8 0-16-7.2-16-16v-32c0-8.8 7.2-16 16-16"/></svg>
+              <span>Manual</span>
+            </button>
+          </div>
+          <p id="status-hint" class="text-[11px] text-slate-400 pt-1 flex items-center gap-1">
+            <svg class="text-brand-400" style="width:1em;height:1em;display:inline-block;vertical-align:-0.125em" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path d="M256 512a256 256 0 1 0 0-512 256 256 0 1 0 0 512m-32-352a32 32 0 1 1 64 0 32 32 0 1 1-64 0m-8 64h48c13.3 0 24 10.7 24 24v88h8c13.3 0 24 10.7 24 24s-10.7 24-24 24h-80c-13.3 0-24-10.7-24-24s10.7-24 24-24h24v-64h-24c-13.3 0-24-10.7-24-24s10.7-24 24-24"/></svg>
+            Ao colar texto no lado direito, o pop-up abre logo.
+          </p>
+        </div>
+      </div>
+
+      <!-- Card Barra de Ferramentas Rápida (Inspirado no Mockup 4) -->
+      <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-xl space-y-3">
+        <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Ferramentas de Texto</span>
+        <div class="grid grid-cols-3 gap-2">
+          <button id="tool-copy" class="flex flex-col items-center justify-center p-2.5 bg-slate-950 hover:bg-slate-800 rounded-xl border border-slate-800 text-slate-300 text-xs transition active:scale-95">
+            <svg class="text-brand-400 text-sm mb-1" style="width:1em;height:1em;display:inline-block;vertical-align:-0.125em" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M384 336H192c-8.8 0-16-7.2-16-16V64c0-8.8 7.2-16 16-16h133.5c4.2 0 8.3 1.7 11.3 4.7l58.5 58.5c3 3 4.7 7.1 4.7 11.3V320c0 8.8-7.2 16-16 16m-192 48h192c35.3 0 64-28.7 64-64V122.5c0-17-6.7-33.3-18.7-45.3l-58.6-58.5C358.7 6.7 342.5 0 325.5 0H192c-35.3 0-64 28.7-64 64v256c0 35.3 28.7 64 64 64M64 128c-35.3 0-64 28.7-64 64v256c0 35.3 28.7 64 64 64h192c35.3 0 64-28.7 64-64v-16h-48v16c0 8.8-7.2 16-16 16H64c-8.8 0-16-7.2-16-16V192c0-8.8 7.2-16 16-16h16v-48z"/></svg>
+            <span>Copiar</span>
+          </button>
+          <button id="tool-duplicate" class="flex flex-col items-center justify-center p-2.5 bg-slate-950 hover:bg-slate-800 rounded-xl border border-slate-800 text-slate-300 text-xs transition active:scale-95">
+            <svg class="text-amber-400 text-sm mb-1" style="width:1em;height:1em;display:inline-block;vertical-align:-0.125em" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path d="M288 448H64V224h48v-64H64c-35.3 0-64 28.7-64 64v224c0 35.3 28.7 64 64 64h224c35.3 0 64-28.7 64-64v-48h-64zm-64-96h224c35.3 0 64-28.7 64-64V64c0-35.3-28.7-64-64-64H224c-35.3 0-64 28.7-64 64v224c0 35.3 28.7 64 64 64"/></svg>
+            <span>Duplicar</span>
+          </button>
+          <button id="tool-clear" class="flex flex-col items-center justify-center p-2.5 bg-slate-950 hover:bg-slate-800 rounded-xl border border-slate-800 text-slate-300 text-xs transition active:scale-95">
+            <svg class="text-rose-400 text-sm mb-1" style="width:1em;height:1em;display:inline-block;vertical-align:-0.125em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path d="M178.5 416h123l65.3-65.3-173.5-173.5L66.6 303.9l112 112zm45.5 64h-45.5c-17 0-33.3-6.7-45.3-18.7L17 345C6.1 334.1 0 319.4 0 304s6.1-30.1 17-41L263 17c10.9-10.9 25.6-17 41-17s30.1 6.1 41 17l182 182c10.9 10.9 17 25.6 17 41s-6.1 30.1-17 41L392 416h120c17.7 0 32 14.3 32 32s-14.3 32-32 32z"/></svg>
+            <span>Limpar</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Card Histórico de Ficheiros Salvos (Inspirado no Mockup 4) -->
+      <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-xl flex-1 flex flex-col overflow-hidden min-h-[220px]">
+        
+        <!-- Header & Pesquisa -->
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+            <svg class="text-brand-400" style="width:1em;height:1em;display:inline-block;vertical-align:-0.125em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path d="M288 64c106 0 192 86 192 192s-86 192-192 192c-65.2 0-122.9-32.5-157.6-82.3-10.1-14.5-30.1-18-44.6-7.9s-18 30.1-7.9 44.6C124.1 468.6 201 512 288 512c141.4 0 256-114.6 256-256S429.4 0 288 0C202.3 0 126.5 42.1 80 106.7V80c0-17.7-14.3-32-32-32S16 62.3 16 80v112c0 17.7 14.3 32 32 32h112.1c17.7 0 32-14.3 32-32s-14.3-32-32-32h-38.3C154.9 102.6 217 64 288 64m24 88c0-13.3-10.7-24-24-24s-24 10.7-24 24v104c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152z"/></svg>
+            Histórico de FX
+          </span>
+          <button id="btn-clear-history" class="text-[10px] text-slate-500 hover:text-slate-300 transition">Limpar</button>
+        </div>
+
+        <!-- Campo de Pesquisa -->
+        <div class="relative mb-3">
+          <svg class="absolute left-3 top-2.5 text-xs text-slate-500" style="width:1em;height:1em;display:inline-block;vertical-align:-0.125em" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path d="M416 208c0 45.9-14.9 88.3-40 122.7l126.6 126.7c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.1-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0s208 93.1 208 208M208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288"/></svg>
+          <input 
+            type="text" 
+            id="search-history" 
+            placeholder="Pesquisar ficheiro..." 
+            class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-brand-500 transition"
+          />
+        </div>
+
+        <!-- Lista Vertical de Ficheiros -->
+        <div id="history-list" class="flex-1 overflow-y-auto custom-scrollbar space-y-2 pr-1">
+          <div class="text-slate-600 text-xs italic text-center py-6">Nenhum ficheiro criado nesta sessão.</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- LADO DIREITO: Área Limpa de Colagem (8 colunas em desktop) -->
+    <section class="lg:col-span-8 flex flex-col h-full bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl relative overflow-hidden">
+      
+      <!-- Informações do Topo da Área de Trabalho -->
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800/80 mb-3">
+        <div class="flex items-center gap-2 text-slate-300">
+          <svg class="text-brand-400 text-sm" style="width:1em;height:1em;display:inline-block;vertical-align:-0.125em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path d="M360.8 1.2c-17-4.9-34.7 5-39.6 22l-128 448c-4.9 17 5 34.7 22 39.6s34.7-5 39.6-22l128-448c4.9-17-5-34.7-22-39.6m64.6 136.1c-12.5 12.5-12.5 32.8 0 45.3l73.4 73.4-73.4 73.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l96-96c12.5-12.5 12.5-32.8 0-45.3l-96-96c-12.5-12.5-32.8-12.5-45.3 0zm-274.7 0c-12.5-12.5-32.8-12.5-45.3 0l-96 96c-12.5 12.5-12.5 32.8 0 45.3l96 96c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256l73.3-73.4c12.5-12.5 12.5-32.8 0-45.3z"/></svg>
+          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300">Bloco de Texto Colado</h2>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-xs text-slate-400 font-mono" id="char-count">0 caracteres</span>
+          <button id="btn-quick-clear-left" class="text-xs text-slate-500 hover:text-slate-300 transition flex items-center gap-1" title="Limpar Texto">
+            <svg class="text-[11px]" style="width:1em;height:1em;display:inline-block;vertical-align:-0.125em" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M136.7 5.9C141.1-7.2 153.3-16 167.1-16H281c13.8 0 26 8.8 30.4 21.9L320 32h96c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 96 0 81.7 0 64s14.3-32 32-32h96zM32 144h384v304c0 35.3-28.7 64-64 64H96c-35.3 0-64-28.7-64-64zm88 64c-13.3 0-24 10.7-24 24v192c0 13.3 10.7 24 24 24s24-10.7 24-24V232c0-13.3-10.7-24-24-24m104 0c-13.3 0-24 10.7-24 24v192c0 13.3 10.7 24 24 24s24-10.7 24-24V232c0-13.3-10.7-24-24-24m104 0c-13.3 0-24 10.7-24 24v192c0 13.3 10.7 24 24 24s24-10.7 24-24V232c0-13.3-10.7-24-24-24"/></svg>
+            <span class="hidden sm:inline">Limpar</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Textarea Principal (Foco Absoluto) -->
+      <div class="relative flex-1 flex flex-col h-full">
+        <textarea 
+          id="fx-code" 
+          class="w-full h-full p-4 bg-slate-950 border border-slate-800/80 rounded-xl font-mono text-sm sm:text-base text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-brand-500/80 focus:border-transparent resize-none transition shadow-inner custom-scrollbar"
+          placeholder="Cole aqui o bloco de código / efeitos (Ex: zoom lento, tremor leve)..."
+          spellcheck="false"
+        ></textarea>
+
+        <!-- Botão Flutuante Rápido no Canto Inferior Direito do Textarea -->
+        <div class="absolute bottom-4 right-4 flex items-center gap-2">
+          <button 
+            id="btn-quick-paste" 
+            class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-3 py-2 rounded-lg shadow-lg flex items-center gap-1.5 border border-slate-700 transition active:scale-95"
+            title="Colar da Área de Transferência"
+          >
+            <svg class="text-brand-400" style="width:1em;height:1em;display:inline-block;vertical-align:-0.125em" viewBox="0 0 384 512" fill="currentColor" aria-hidden="true"><path d="M232 96h-80c-13.3 0-24-10.7-24-24s10.7-24 24-24h80c13.3 0 24 10.7 24 24s-10.7 24-24 24m0 48c37.1 0 67.6-28 71.6-64H320c8.8 0 16 7.2 16 16v352c0 8.8-7.2 16-16 16H64c-8.8 0-16-7.2-16-16V96c0-8.8 7.2-16 16-16h16.4c4 36 34.5 64 71.6 64zm59.9-112C279 12.7 257 0 232 0h-80c-25 0-47 12.7-59.9 32H64C28.7 32 0 60.7 0 96v352c0 35.3 28.7 64 64 64h256c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64z"/></svg>
+            <span>Colar</span>
+          </button>
+          <button 
+            id="btn-trigger-save" 
+            class="bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-lg shadow-brand-600/20 flex items-center gap-2 border border-brand-400/30 transition active:scale-95"
+            title="Salvar Ficheiro (Shift + Enter)"
+          >
+            <svg class="" style="width:1em;height:1em;display:inline-block;vertical-align:-0.125em" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M64 32C28.7 32 0 60.7 0 96v320c0 35.3 28.7 64 64 64h320c35.3 0 64-28.7 64-64V173.3c0-17-6.7-33.3-18.7-45.3L352 50.7c-12-12-28.3-18.7-45.3-18.7zm32 96c0-17.7 14.3-32 32-32h160c17.7 0 32 14.3 32 32v64c0 17.7-14.3 32-32 32H128c-17.7 0-32-14.3-32-32zm128 160a64 64 0 1 1 0 128 64 64 0 1 1 0-128"/></svg>
+            <span>Salvar (Shift+Enter)</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- POP-UP MODAL CENTRAL -->
+  <div id="name-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-200">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl transform scale-95 transition-transform duration-200" id="modal-card">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-brand-500/10 text-brand-400 flex items-center justify-center">
+            <svg class="text-sm" style="width:1em;height:1em;display:inline-block;vertical-align:-0.125em" viewBox="0 0 640 512" fill="currentColor" aria-hidden="true"><path d="M64.1 64c0-35.3 28.7-64 64-64h149.5c17 0 33.3 6.7 45.3 18.7l106.4 106.6c12 12 18.7 28.3 18.7 45.3v97.5l-132 132h-42.1l-16.1-53.6c-4.7-15.7-19.1-26.4-35.5-26.4-11.3 0-21.9 5.1-28.9 13.9l-60.1 75c-8.3 10.3-6.6 25.5 3.7 33.7s25.5 6.6 33.7-3.8l47.1-58.8 15.2 50.7c3 10.2 12.4 17.1 23 17.1h31.5c-.9 3.1-1.7 6.3-2.3 9.5l-10.9 54.5H128.1c-35.3 0-64-28.7-64-64v-384zm208-5.5V152c0 13.3 10.7 24 24 24h93.5zm60.2 408.4c2.5-12.4 8.6-23.8 17.5-32.7l118.9-118.9 80 80-118.9 118.9c-8.9 8.9-20.3 15-32.7 17.5l-59.6 11.9c-.9.2-1.9.3-2.9.3-8 0-14.6-6.5-14.6-14.6 0-1 .1-1.9.3-2.9l11.9-59.6zm267.8-123-28.8 28.8-80-80 28.8-28.8c22.1-22.1 57.9-22.1 80 0s22.1 57.9 0 80"/></svg>
+          </div>
+          <h2 class="text-base font-bold text-white">Nome do Ficheiro</h2>
+        </div>
+        <button id="btn-close-modal" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+          <svg class="text-lg" style="width:1em;height:1em;display:inline-block;vertical-align:-0.125em" viewBox="0 0 384 512" fill="currentColor" aria-hidden="true"><path d="M55.1 73.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L147.2 256 9.9 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l137.3-137.4 137.4 137.3c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.8 256l137.3-137.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192.5 210.7z"/></svg>
+        </button>
+      </div>
+
+      <!-- Input Area -->
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1.5">
+            Escreva o nome do ficheiro (ex: 7 ou Intro):
+          </label>
+          <input 
+            type="text" 
+            id="file-name-input" 
+            class="w-full bg-slate-950 border-2 border-brand-500/50 focus:border-brand-500 text-white text-lg font-mono px-4 py-3 rounded-xl focus:outline-none focus:ring-4 focus:ring-brand-500/10 transition"
+            placeholder="Digite o nome..."
+            autocomplete="off" 
+          />
+        </div>
+
+        <!-- Aviso Dinâmico / Confirmação de Nome Vazio (ENTER em campo vazio) -->
+        <div id="empty-warning" class="hidden bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs p-3 rounded-xl flex items-center gap-2">
+          <svg class="text-amber-400 text-sm" style="width:1em;height:1em;display:inline-block;vertical-align:-0.125em" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path d="M256 0c14.7 0 28.2 8.1 35.2 21l216 400c6.7 12.4 6.4 27.4-.8 39.5S486.1 480 472 480H40c-14.1 0-27.2-7.4-34.4-19.5s-7.5-27.1-.8-39.5l216-400c7-12.9 20.5-21 35.2-21m0 352a32 32 0 1 0 0 64 32 32 0 1 0 0-64m0-192c-18.2 0-32.7 15.5-31.4 33.7l7.4 104c.9 12.5 11.4 22.3 23.9 22.3 12.6 0 23-9.7 23.9-22.3l7.4-104c1.3-18.2-13.1-33.7-31.4-33.7z"/></svg>
+          <span>Quer salvar sem nome? Pressione <b>Enter</b> novamente para salvar como <b>FX.txt</b>.</span>
+        </div>
+
+        <!-- Automatic Preview Result -->
+        <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 flex items-center justify-between">
+          <span class="text-xs text-slate-400">Resultado final:</span>
+          <span id="name-preview" class="font-mono font-bold text-brand-400 text-sm sm:text-base">FX.txt</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center justify-end gap-3 mt-6">
+        <button id="btn-cancel" class="px-4 py-2.5 rounded-xl border border-slate-800 text-slate-400 hover:bg-slate-800 hover:text-white text-xs font-semibold transition">
+          Cancelar (Esc)
+        </button>
+        <button id="btn-save" class="flex-1 sm:flex-none px-6 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold shadow-lg shadow-brand-600/20 transition flex items-center justify-center gap-2 active:scale-95">
+          <svg class="" style="width:1em;height:1em;display:inline-block;vertical-align:-0.125em" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M256 32c0-17.7-14.3-32-32-32s-32 14.3-32 32v210.7l-41.4-41.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l96 96c12.5 12.5 32.8 12.5 45.3 0l96-96c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 242.7zM64 320c-35.3 0-64 28.7-64 64v32c0 35.3 28.7 64 64 64h320c35.3 0 64-28.7 64-64v-32c0-35.3-28.7-64-64-64h-46.9l-56.6 56.6c-31.2 31.2-81.9 31.2-113.1 0L110.9 320zm304 56a24 24 0 1 1 0 48 24 24 0 1 1 0-48"/></svg>
+          <span id="btn-save-label">Salvar Ficheiro (Enter)</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="fixed bottom-5 right-5 bg-slate-800 border border-slate-700 text-white px-4 py-3 rounded-xl shadow-xl flex items-center gap-3 translate-y-20 opacity-0 transition-all duration-300 z-50">
+    <div id="toast-icon" class="text-brand-400 text-lg">
+      <svg class="" style="width:1em;height:1em;display:inline-block;vertical-align:-0.125em" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path d="M256 512a256 256 0 1 1 0-512 256 256 0 1 1 0 512m118-366.3c-10.7-7.8-25.7-5.4-33.5 5.3L221.1 315.2 169 263.1c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l72 72c5 5 11.8 7.5 18.8 7s13.4-4.1 17.5-9.8l135.9-187c7.8-10.7 5.4-25.7-5.3-33.5"/></svg>
+    </div>
+    <div id="toast-message" class="text-xs font-medium">Ficheiro guardado com sucesso!</div>
+  </div>
+
+  <script>
+    // Referências dos Elementos
+    const textarea = document.getElementById('fx-code');
+    const charCount = document.getElementById('char-count');
+    const statusHint = document.getElementById('status-hint');
+    const modal = document.getElementById('name-modal');
+    const modalCard = document.getElementById('modal-card');
+    const nameInput = document.getElementById('file-name-input');
+    const preview = document.getElementById('name-preview');
+    const emptyWarning = document.getElementById('empty-warning');
+    const btnSaveLabel = document.getElementById('btn-save-label');
+    const btnCloseModal = document.getElementById('btn-close-modal');
+    const btnCancel = document.getElementById('btn-cancel');
+    const btnSave = document.getElementById('btn-save');
+    const btnSelectDir = document.getElementById('btn-select-dir');
+    const dirLabel = document.getElementById('dir-label');
+    const btnQuickPaste = document.getElementById('btn-quick-paste');
+    const btnTriggerSave = document.getElementById('btn-trigger-save');
+    const btnQuickClearLeft = document.getElementById('btn-quick-clear-left');
+    
+    // Ferramentas da Direita
+    const toolCopy = document.getElementById('tool-copy');
+    const toolDuplicate = document.getElementById('tool-duplicate');
+    const toolClear = document.getElementById('tool-clear');
+    
+    // Histórico
+    const historyList = document.getElementById('history-list');
+    const btnClearHistory = document.getElementById('btn-clear-history');
+    const searchHistory = document.getElementById('search-history');
+
+    // Modos
+    const modeAutoBtn = document.getElementById('mode-auto');
+    const modeManualBtn = document.getElementById('mode-manual');
+
+    // Toast
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toast-message');
+
+    let currentMode = 'auto'; // 'auto' | 'manual'
+    let directoryHandle = null;
+    // --- pasta guardada (IndexedDB própria desta ferramenta: aet-fx) ---
+    const fxDB = () => new Promise((res, rej) => { const r = indexedDB.open('aet-fx', 1); r.onupgradeneeded = () => r.result.createObjectStore('kv'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+    const fxGet = (k) => fxDB().then(db => new Promise((res, rej) => { const q = db.transaction('kv').objectStore('kv').get(k); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }));
+    const fxSet = (k, v) => fxDB().then(db => new Promise((res, rej) => { const tx = db.transaction('kv', 'readwrite'); v === undefined ? tx.objectStore('kv').delete(k) : tx.objectStore('kv').put(v, k); tx.oncomplete = () => res(); tx.onerror = () => rej(tx.error); }));
+    async function fxEnsurePerm(h) { const o = { mode: 'readwrite' }; if ((await h.queryPermission(o)) === 'granted') return true; return (await h.requestPermission(o)) === 'granted'; }
+    if ('showDirectoryPicker' in window) {
+      fxGet('dir').then(h => { if (h) { directoryHandle = h; const l = document.getElementById('dir-label'); if (l) l.textContent = 'Pasta: ' + h.name; } }).catch(() => {});
+    }
+    let recentFiles = [];
+    let isPasting = false;
+    let pendingEmptySaveConfirm = false; // Flag para controlar confirmação de Enter em nome vazio
+
+    // Modo Toggle Logic
+    modeAutoBtn.addEventListener('click', () => setMode('auto'));
+    modeManualBtn.addEventListener('click', () => setMode('manual'));
+
+    function setMode(mode) {
+      currentMode = mode;
+      if (mode === 'auto') {
+        modeAutoBtn.className = "py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition bg-brand-600 text-white shadow";
+        modeManualBtn.className = "py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition text-slate-400 hover:text-slate-200";
+        statusHint.innerHTML = `<svg class="text-brand-400" style="width:1em;height:1em;display:inline-block;vertical-align:-0.125em" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path d="M256 512a256 256 0 1 0 0-512 256 256 0 1 0 0 512m-32-352a32 32 0 1 1 64 0 32 32 0 1 1-64 0m-8 64h48c13.3 0 24 10.7 24 24v88h8c13.3 0 24 10.7 24 24s-10.7 24-24 24h-80c-13.3 0-24-10.7-24-24s10.7-24 24-24h24v-64h-24c-13.3 0-24-10.7-24-24s10.7-24 24-24"/></svg> Ao colar texto no lado direito, o pop-up abre logo.`;
+      } else {
+        modeManualBtn.className = "py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition bg-brand-600 text-white shadow";
+        modeAutoBtn.className = "py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition text-slate-400 hover:text-slate-200";
+        statusHint.innerHTML = `<svg class="text-brand-400" style="width:1em;height:1em;display:inline-block;vertical-align:-0.125em" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path d="M64 64C28.7 64 0 92.7 0 128v256c0 35.3 28.7 64 64 64h448c35.3 0 64-28.7 64-64V128c0-35.3-28.7-64-64-64zm16 64h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16v-32c0-8.8 7.2-16 16-16M64 240c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16zm112-112h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16h-32c-8.8 0-16-7.2-16-16v-32c0-8.8 7.2-16 16-16m-16 112c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16h-32c-8.8 0-16-7.2-16-16zm16 80h224c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H176c-8.8 0-16-7.2-16-16v-32c0-8.8 7.2-16 16-16m80-176c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16h-32c-8.8 0-16-7.2-16-16zm16 80h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16h-32c-8.8 0-16-7.2-16-16v-32c0-8.8 7.2-16 16-16m80-80c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16h-32c-8.8 0-16-7.2-16-16zm16 80h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16h-32c-8.8 0-16-7.2-16-16v-32c0-8.8 7.2-16 16-16m80-80c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16h-32c-8.8 0-16-7.2-16-16zm16 80h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16h-32c-8.8 0-16-7.2-16-16v-32c0-8.8 7.2-16 16-16"/></svg> Pressione Shift + Enter no lado direito para salvar.`;
+      }
+    }
+
+    // Monitorização Dinâmica para Teclados Virtuais Mobile (Gboard, Samsung, etc)
+    textarea.addEventListener('input', (e) => {
+      charCount.textContent = `${textarea.value.length} caracteres`;
+
+      if (currentMode === 'auto' && textarea.value.trim().length > 0) {
+        if (e.inputType === 'insertFromPaste' || (e.data && e.data.length > 5) || !e.data) {
+          if (!isPasting) {
+            isPasting = true;
+            setTimeout(() => {
+              openModal();
+              isPasting = false;
+            }, 50);
+          }
+        }
+      }
+    });
+
+    textarea.addEventListener('paste', () => {
+      if (currentMode === 'auto') {
+        if (!isPasting) {
+          isPasting = true;
+          setTimeout(() => {
+            openModal();
+            isPasting = false;
+          }, 80);
+        }
+      }
+    });
+
+    // Atalhos do Textarea
+    textarea.addEventListener('keydown', (e) => {
+      if (e.shiftKey && e.key === 'Enter') {
+        e.preventDefault();
+        openModal();
+      }
+    });
+
+    // Botão visual "Salvar (Shift+Enter)" abre sempre o modal
+    btnTriggerSave.addEventListener('click', openModal);
+
+    // Botões de Limpeza Rápida
+    btnQuickClearLeft.addEventListener('click', clearTextarea);
+    toolClear.addEventListener('click', clearTextarea);
+
+    function clearTextarea() {
+      textarea.value = '';
+      charCount.textContent = '0 caracteres';
+      showToast('Texto limpo!');
+    }
+
+    // Botão Colar
+    btnQuickPaste.addEventListener('click', async () => {
+      try {
+        const text = await navigator.clipboard.readText();
+        textarea.value = text;
+        charCount.textContent = `${textarea.value.length} caracteres`;
+        if (currentMode === 'auto') {
+          openModal();
+        }
+      } catch (err) {
+        showToast('Utilize a área de transferência do teclado.', 'error');
+      }
+    });
+
+    // Ferramentas da Direita
+    toolCopy.addEventListener('click', () => {
+      if (!textarea.value.trim()) return showToast('Nada para copiar!', 'error');
+      navigator.clipboard.writeText(textarea.value);
+      showToast('Conteúdo copiado!');
+    });
+
+    toolDuplicate.addEventListener('click', () => {
+      if (!textarea.value.trim()) return showToast('Nada para duplicar!', 'error');
+      textarea.value += '\n\n' + textarea.value;
+      charCount.textContent = `${textarea.value.length} caracteres`;
+      showToast('Conteúdo duplicado!');
+    });
+
+    // Modal Operations
+    function openModal() {
+      if (!textarea.value.trim()) {
+        showToast('Escreva ou cole algum efeito primeiro!', 'error');
+        return;
+      }
+
+      nameInput.value = '';
+      pendingEmptySaveConfirm = false;
+      emptyWarning.classList.add('hidden');
+      btnSaveLabel.textContent = "Salvar Ficheiro (Enter)";
+      updatePreview();
+
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        modalCard.classList.remove('scale-95');
+        modalCard.classList.add('scale-100');
+        
+        nameInput.focus();
+      }, 10);
+    }
+
+    function closeModal() {
+      modal.classList.add('opacity-0');
+      modalCard.classList.remove('scale-100');
+      modalCard.classList.add('scale-95');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+      }, 200);
+    }
+
+    function getFormattedFileName() {
+      const raw = nameInput.value.trim();
+      if (!raw) {
+        return 'FX.txt';
+      }
+      return `${raw} FX.txt`;
+    }
+
+    function updatePreview() {
+      preview.textContent = getFormattedFileName();
+    }
+
+    nameInput.addEventListener('input', () => {
+      // Se começar a digitar, limpa a confirmação de nome vazio
+      if (pendingEmptySaveConfirm) {
+        pendingEmptySaveConfirm = false;
+        emptyWarning.classList.add('hidden');
+        btnSaveLabel.textContent = "Salvar Ficheiro (Enter)";
+      }
+      updatePreview();
+    });
+
+    // Teclado no Modal (Regra de Nome Vazio)
+    nameInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+
+        // Se o nome está vazio e ainda não deu o 2º Enter
+        if (nameInput.value.trim() === '' && !pendingEmptySaveConfirm) {
+          pendingEmptySaveConfirm = true;
+          emptyWarning.classList.remove('hidden');
+          btnSaveLabel.textContent = "Confirmar Salvar como FX.txt (Enter)";
+          return;
+        }
+
+        saveFile();
+      } else if (e.key === 'Escape') {
+        closeModal();
+      }
+    });
+
+    // Clique Manual no Botão Salvar (Salva Direto mesmo se Vazio)
+    btnSave.addEventListener('click', () => {
+      saveFile();
+    });
+
+    btnCloseModal.addEventListener('click', closeModal);
+    btnCancel.addEventListener('click', closeModal);
+
+    // Seleção de Pasta
+    btnSelectDir.addEventListener('click', async () => {
+      if ('showDirectoryPicker' in window) {
+        try {
+          directoryHandle = await window.showDirectoryPicker({ id: 'aet-fx', mode: 'readwrite', startIn: 'downloads' });
+          try { await fxSet('dir', directoryHandle); } catch (e) {}
+          dirLabel.textContent = `Pasta: ${directoryHandle.name}`;
+          showToast(`Pasta "${directoryHandle.name}" selecionada!`);
+        } catch (err) {
+          if (err.name !== 'AbortError') {
+            showToast('Não foi possível aceder à pasta.', 'error');
+          }
+        }
+      } else {
+        showToast('Navegador não suporta escolha de diretório. Usando Downloads padrão.');
+      }
+    });
+
+    // Execução do Salvar
+    async function saveFile() {
+      const fileName = getFormattedFileName();
+      const content = textarea.value;
+
+      if (!content.trim()) {
+        showToast('Escreva ou cole algum efeito primeiro!', 'error');
+        closeModal();
+        return;
+      }
+
+      try {
+        if (directoryHandle && !(await fxEnsurePerm(directoryHandle).catch(() => false))) {
+          showToast('Sem acesso à pasta. Toque em "Pasta de Destino" e autorize. A usar Downloads.', 'error');
+          directoryHandle = null;
+        }
+        if (directoryHandle) {
+          const fileHandle = await directoryHandle.getFileHandle(fileName, { create: true });
+          const writable = await fileHandle.createWritable();
+          await writable.write(content);
+          await writable.close();
+        } else {
+          const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = fileName;
+          link.click();
+          URL.revokeObjectURL(link.href);
+        }
+
+        addHistory(fileName);
+        showToast(`Guardado: ${fileName}`);
+        clearTextarea();
+        closeModal();
+      } catch (err) {
+        console.error(err);
+        showToast('Erro ao guardar o ficheiro.', 'error');
+      }
+    }
+
+    // Histórico
+    function addHistory(fileName) {
+      const now = new Date();
+      const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      recentFiles.unshift({ name: fileName, time: timeStr });
+      if (recentFiles.length > 10) recentFiles.pop();
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const query = searchHistory.value.toLowerCase().trim();
+      const filtered = recentFiles.filter(item => item.name.toLowerCase().includes(query));
+
+      if (filtered.length === 0) {
+        historyList.innerHTML = `<div class="text-slate-600 text-xs italic text-center py-6">Sem ficheiros encontrados.</div>`;
+        return;
+      }
+
+      historyList.innerHTML = filtered.map(item => `
+        <div class="flex items-center justify-between p-2 bg-slate-950 hover:bg-slate-800/60 rounded-xl border border-slate-800/80 transition">
+          <div class="flex items-center gap-2 truncate">
+            <svg class="text-brand-400 text-xs" style="width:1em;height:1em;display:inline-block;vertical-align:-0.125em" viewBox="0 0 384 512" fill="currentColor" aria-hidden="true"><path d="M64 48h112v88c0 39.8 32.2 72 72 72h88v240c0 8.8-7.2 16-16 16H64c-8.8 0-16-7.2-16-16V64c0-8.8 7.2-16 16-16m160 19.9 92.1 92.1H248c-13.3 0-24-10.7-24-24zM64 0C28.7 0 0 28.7 0 64v384c0 35.3 28.7 64 64 64h256c35.3 0 64-28.7 64-64V186.5c0-17-6.7-33.3-18.7-45.3L242.7 18.7C230.7 6.7 214.5 0 197.5 0zm56 256c-13.3 0-24 10.7-24 24s10.7 24 24 24h144c13.3 0 24-10.7 24-24s-10.7-24-24-24zm0 96c-13.3 0-24 10.7-24 24s10.7 24 24 24h144c13.3 0 24-10.7 24-24s-10.7-24-24-24z"/></svg>
+            <div class="truncate">
+              <div class="font-mono text-xs font-semibold text-slate-200 truncate">${item.name}</div>
+              <div class="text-[10px] text-slate-500">${item.time}</div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    searchHistory.addEventListener('input', renderHistory);
+
+    btnClearHistory.addEventListener('click', () => {
+      recentFiles = [];
+      renderHistory();
+    });
+
+    // Toast Helper
+    function showToast(msg, type = 'success') {
+      toastMessage.textContent = msg;
+      const icon = document.getElementById('toast-icon');
+      if (type === 'error') {
+        icon.className = 'text-rose-400 text-lg';
+        icon.innerHTML = '<svg class="" style="width:1em;height:1em;display:inline-block;vertical-align:-0.125em" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path d="M256 512a256 256 0 1 0 0-512 256 256 0 1 0 0 512m-89-345c9.4-9.4 24.6-9.4 33.9 0l55 55 55-55c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-55 55 55 55c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-55-55-55 55c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l55-55-55-55c-9.4-9.4-9.4-24.6 0-33.9"/></svg>';
+      } else {
+        icon.className = 'text-brand-400 text-lg';
+        icon.innerHTML = '<svg class="" style="width:1em;height:1em;display:inline-block;vertical-align:-0.125em" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path d="M256 512a256 256 0 1 1 0-512 256 256 0 1 1 0 512m118-366.3c-10.7-7.8-25.7-5.4-33.5 5.3L221.1 315.2 169 263.1c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l72 72c5 5 11.8 7.5 18.8 7s13.4-4.1 17.5-9.8l135.9-187c7.8-10.7 5.4-25.7-5.3-33.5"/></svg>';
+      }
+      
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3000);
+    }
+  </script>
+</body>
+</html>

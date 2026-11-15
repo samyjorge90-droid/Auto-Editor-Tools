@@ -1,0 +1,3603 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Post Planner - Planeador de Vídeos</title>
+  <style>
+    /* Scope all styles under #pp-root */
+    #pp-root {
+      --pp-bg-base: #0f172a;
+      --pp-bg-card: #1e293b;
+      --pp-bg-sidebar: #111827;
+      --pp-bg-input: #334155;
+      --pp-bg-hover: #475569;
+      --pp-border: #334155;
+      --pp-border-light: #475569;
+      --pp-text-main: #f8fafc;
+      --pp-text-muted: #94a3b8;
+      --pp-primary: #3b82f6;
+      --pp-primary-hover: #2563eb;
+      --pp-success: #22c55e;
+      --pp-warning: #eab308;
+      --pp-danger: #ef4444;
+      --pp-code-bg: #090d16;
+      
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--pp-bg-base);
+      color: var(--pp-text-main);
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+      box-sizing: border-box;
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    #pp-root.pp-theme-light {
+      --pp-bg-base: #f1f5f9;
+      --pp-bg-card: #ffffff;
+      --pp-bg-sidebar: #e2e8f0;
+      --pp-bg-input: #ffffff;
+      --pp-bg-hover: #cbd5e1;
+      --pp-border: #cbd5e1;
+      --pp-border-light: #e2e8f0;
+      --pp-text-main: #0f172a;
+      --pp-text-muted: #64748b;
+      --pp-primary: #2563eb;
+      --pp-primary-hover: #1d4ed8;
+      --pp-success: #16a34a;
+      --pp-warning: #ca8a04;
+      --pp-danger: #dc2626;
+      --pp-code-bg: #f8fafc;
+    }
+
+    #pp-root *, #pp-root *::before, #pp-root *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Custom Scrollbars */
+    #pp-root ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    #pp-root ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.15);
+    }
+    #pp-root ::-webkit-scrollbar-thumb {
+      background: var(--pp-border-light);
+      border-radius: 4px;
+    }
+    #pp-root ::-webkit-scrollbar-thumb:hover {
+      background: var(--pp-primary);
+    }
+
+    /* Layout Structure */
+    #pp-root .pp-layout {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+    }
+
+    @media (min-width: 768px) {
+      #pp-root .pp-layout {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        height: 100vh;
+        height: 100dvh;
+        overflow: hidden;
+      }
+    }
+
+    /* Sidebar Styling */
+    #pp-root .pp-sidebar {
+      background-color: var(--pp-bg-sidebar);
+      border-right: 2px solid var(--pp-border);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      height: 100%;
+      max-height: 100vh;
+      max-height: 100dvh;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    @media (max-width: 767px) {
+      #pp-root .pp-sidebar {
+        max-height: 40vh;
+        border-right: none;
+        border-bottom: 2px solid var(--pp-border);
+      }
+    }
+
+    #pp-root .pp-sidebar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--pp-border);
+      flex-shrink: 0;
+    }
+
+    #pp-root .pp-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #pp-root .pp-sidebar-content {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      flex: 1;
+    }
+
+    /* Main Area Container */
+    #pp-root .pp-main-area {
+      padding: 16px;
+      max-width: 960px;
+      width: 100%;
+      margin: 0 auto;
+      box-sizing: border-box;
+      height: 100%;
+      max-height: 100vh;
+      max-height: 100dvh;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+      position: relative;
+    }
+
+    /* Screens Visibility */
+    #pp-root .pp-screen {
+      display: none;
+    }
+    #pp-root .pp-screen.pp-active {
+      display: block;
+    }
+
+    /* Buttons */
+    #pp-root .pp-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border: 1px solid var(--pp-border);
+      background-color: var(--pp-bg-card);
+      color: var(--pp-text-main);
+      cursor: pointer;
+      transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.05s ease;
+      touch-action: manipulation;
+      user-select: none;
+    }
+    #pp-root .pp-btn:hover {
+      background-color: var(--pp-bg-hover);
+    }
+    #pp-root .pp-btn:active {
+      transform: scale(0.98);
+    }
+    #pp-root .pp-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    #pp-root .pp-btn-primary {
+      background-color: var(--pp-primary);
+      border-color: var(--pp-primary);
+      color: #ffffff;
+    }
+    #pp-root .pp-btn-primary:hover {
+      background-color: var(--pp-primary-hover);
+    }
+
+    #pp-root .pp-btn-success {
+      background-color: var(--pp-success);
+      border-color: var(--pp-success);
+      color: #ffffff;
+    }
+
+    #pp-root .pp-btn-warning {
+      background-color: var(--pp-warning);
+      border-color: var(--pp-warning);
+      color: #0f172a;
+    }
+
+    #pp-root .pp-btn-danger {
+      background-color: var(--pp-danger);
+      border-color: var(--pp-danger);
+      color: #ffffff;
+    }
+
+    #pp-root .pp-btn-icon {
+      min-width: 44px;
+      padding: 8px;
+    }
+
+    #pp-root .pp-btn-block {
+      width: 100%;
+    }
+
+    /* Inputs, Textareas & Selects */
+    #pp-root .pp-input,
+    #pp-root .pp-textarea,
+    #pp-root .pp-select {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--pp-border);
+      background-color: var(--pp-bg-input);
+      color: var(--pp-text-main);
+      font-size: 0.9rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s ease, opacity 0.2s ease;
+    }
+    #pp-root .pp-input:focus,
+    #pp-root .pp-textarea:focus,
+    #pp-root .pp-select:focus {
+      border-color: var(--pp-primary);
+    }
+
+    #pp-root .pp-textarea:disabled {
+      opacity: 0.65;
+      cursor: pointer;
+      background-color: rgba(15, 23, 42, 0.4);
+      border-style: dashed;
+    }
+
+    /* Navigation Bar / Tabs */
+    #pp-root .pp-nav {
+      display: flex;
+      gap: 6px;
+      background-color: var(--pp-bg-card);
+      padding: 6px;
+      border-radius: 12px;
+      border: 1px solid var(--pp-border);
+      margin-bottom: 16px;
+      overflow-x: auto;
+    }
+    #pp-root .pp-tab {
+      flex: 1;
+      min-height: 44px;
+      border: none;
+      background: transparent;
+      color: var(--pp-text-muted);
+      font-weight: 600;
+      font-size: 0.85rem;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+      transition: background-color 0.15s ease, color 0.15s ease;
+    }
+    #pp-root .pp-tab.pp-active {
+      background-color: var(--pp-primary);
+      color: #ffffff;
+    }
+    #pp-root .pp-badge {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-size: 0.75rem;
+    }
+    #pp-root .pp-tab:not(.pp-active) .pp-badge {
+      background: var(--pp-bg-input);
+      color: var(--pp-text-muted);
+    }
+
+    /* Channel Chips */
+    #pp-root .pp-channels-bar {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+      -webkit-overflow-scrolling: touch;
+    }
+    #pp-root .pp-chip {
+      min-height: 40px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid var(--pp-border);
+      background-color: var(--pp-bg-card);
+      color: var(--pp-text-muted);
+      font-size: 0.82rem;
+      font-weight: 500;
+      white-space: nowrap;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+    #pp-root .pp-chip.pp-active {
+      background-color: var(--pp-primary);
+      border-color: var(--pp-primary);
+      color: #ffffff;
+    }
+
+    /* Status Limit Badges */
+    #pp-root .pp-limit-badge {
+      font-size: 0.75rem;
+      padding: 2px 6px;
+      border-radius: 8px;
+      font-weight: 700;
+    }
+    #pp-root .pp-limit-green { background: rgba(34, 197, 94, 0.2); color: var(--pp-success); }
+    #pp-root .pp-limit-yellow { background: rgba(234, 179, 8, 0.2); color: var(--pp-warning); }
+    #pp-root .pp-limit-red { background: rgba(239, 68, 68, 0.2); color: var(--pp-danger); }
+
+    /* Controls Bar */
+    #pp-root .pp-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    @media (min-width: 600px) {
+      #pp-root .pp-controls {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+    }
+    #pp-root .pp-search-box {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    /* Video Cards List & Grid */
+    #pp-root .pp-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    #pp-root .pp-grid.pp-view-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 12px;
+    }
+
+    #pp-root .pp-card {
+      background-color: var(--pp-bg-card);
+      border: 1px solid var(--pp-border);
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      cursor: pointer;
+      transition: border-color 0.15s ease, transform 0.1s ease;
+      position: relative;
+    }
+    #pp-root .pp-card:hover {
+      border-color: var(--pp-border-light);
+    }
+    #pp-root .pp-card.pp-selected {
+      border-color: var(--pp-primary);
+      background-color: rgba(59, 130, 246, 0.08);
+    }
+
+    #pp-root .pp-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    #pp-root .pp-card-channel {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--pp-primary);
+      background: rgba(59, 130, 246, 0.1);
+      padding: 2px 8px;
+      border-radius: 4px;
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    #pp-root .pp-status-tag {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+    #pp-root .pp-status-pendente {
+      background-color: rgba(234, 179, 8, 0.15);
+      color: var(--pp-warning);
+    }
+    #pp-root .pp-status-agendado {
+      background-color: rgba(59, 130, 246, 0.15);
+      color: var(--pp-primary);
+    }
+    #pp-root .pp-status-publicado {
+      background-color: rgba(34, 197, 94, 0.15);
+      color: var(--pp-success);
+    }
+
+    #pp-root .pp-card-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      line-height: 1.3;
+      word-break: break-word;
+    }
+    #pp-root .pp-card-desc-preview {
+      font-size: 0.82rem;
+      color: var(--pp-text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #pp-root .pp-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--pp-text-muted);
+      margin-top: 4px;
+    }
+    #pp-root .pp-overdue-date {
+      color: var(--pp-danger);
+      font-weight: 700;
+    }
+
+    /* Detail Blocks */
+    #pp-root .pp-detail-block {
+      background: var(--pp-bg-card);
+      border: 1px solid var(--pp-border);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 12px;
+      transition: border-color 0.2s ease;
+      position: relative;
+    }
+    #pp-root .pp-detail-block.pp-copied {
+      border-left: 4px solid var(--pp-success);
+    }
+    #pp-root .pp-block-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--pp-text-muted);
+    }
+    #pp-root .pp-code-box {
+      background-color: var(--pp-code-bg);
+      border: 1px solid var(--pp-border);
+      border-radius: 6px;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 0.88rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 140px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Char Counter */
+    #pp-root .pp-char-counter {
+      font-size: 0.75rem;
+      color: var(--pp-text-muted);
+    }
+    #pp-root .pp-char-counter.pp-over-limit {
+      color: var(--pp-danger);
+      font-weight: bold;
+    }
+
+    /* Import & Preview Items */
+    #pp-root .pp-preview-item {
+      background: var(--pp-bg-card);
+      border: 1px solid var(--pp-border);
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 8px;
+      font-size: 0.88rem;
+    }
+    #pp-root .pp-preview-item.pp-duplicate {
+      border-color: var(--pp-warning);
+    }
+    #pp-root .pp-preview-item.pp-error {
+      border-color: var(--pp-danger);
+    }
+
+    /* Bulk Bar */
+    #pp-root .pp-bulk-bar {
+      position: sticky;
+      bottom: 16px;
+      background: var(--pp-bg-card);
+      border: 1px solid var(--pp-primary);
+      border-radius: 12px;
+      padding: 10px 14px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      z-index: 100;
+    }
+
+    /* Toasts / Notifications */
+    #pp-root .pp-toast-container {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+    #pp-root .pp-toast {
+      pointer-events: auto;
+      background: var(--pp-bg-card);
+      color: var(--pp-text-main);
+      border: 1px solid var(--pp-primary);
+      padding: 10px 16px;
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      animation: ppToastSlideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes ppToastSlideIn { 
+      from { opacity: 0; transform: translateY(-12px); } 
+      to { opacity: 1; transform: translateY(0); } 
+    }
+
+    /* Modal Overlays - Centered on Screen */
+    .pp-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.75);
+      z-index: 2500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      box-sizing: border-box;
+    }
+    .pp-modal-content {
+      background: var(--pp-bg-card);
+      border: 1px solid var(--pp-border-light);
+      border-radius: 14px;
+      max-width: 540px;
+      width: 100%;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+      overflow: hidden;
+      margin: auto;
+    }
+
+    /* Reminder Modal Pop-up (Matching Reference Image IMG-20261111-WA2842.jpg) */
+    #pp-reminder-modal .pp-modal-content {
+      background: #182030;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      max-width: 520px;
+      width: 100%;
+      padding: 24px;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin: auto;
+      animation: ppModalPopIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes ppModalPopIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    #pp-reminder-modal .pp-reminder-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #pp-reminder-modal .pp-reminder-header h3 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #pp-reminder-modal .pp-reminder-close {
+      background: transparent;
+      border: none;
+      color: #ffffff;
+      font-size: 1.2rem;
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      transition: background 0.15s ease;
+    }
+    #pp-reminder-modal .pp-reminder-close:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    #pp-reminder-modal .pp-reminder-body {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      max-height: 60vh;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    #pp-reminder-modal .pp-reminder-section-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #f59e0b;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    #pp-reminder-modal .pp-reminder-card {
+      background: #212b3d;
+      border: 1px solid #334155;
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    #pp-reminder-modal .pp-reminder-card-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    #pp-reminder-modal .pp-reminder-play-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: rgba(245, 158, 11, 0.2);
+      color: #f59e0b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    #pp-reminder-modal .pp-reminder-card-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    #pp-reminder-modal .pp-reminder-card-title {
+      font-weight: 700;
+      font-size: 0.92rem;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    #pp-reminder-modal .pp-reminder-card-sub {
+      font-size: 0.78rem;
+      color: #94a3b8;
+    }
+
+    #pp-reminder-modal .pp-reminder-action-btn {
+      background: #3b82f6;
+      border: none;
+      color: #ffffff;
+      border-radius: 10px;
+      padding: 8px 18px;
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.15s ease;
+    }
+    #pp-reminder-modal .pp-reminder-action-btn:hover {
+      background: #2563eb;
+    }
+
+    #pp-reminder-modal .pp-reminder-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 8px;
+      gap: 12px;
+    }
+
+    #pp-reminder-modal .pp-reminder-note {
+      font-size: 0.8rem;
+      color: #64748b;
+    }
+
+    #pp-reminder-modal .pp-reminder-close-btn {
+      background: #2a3447;
+      border: 1px solid #3b4861;
+      color: #f1f5f9;
+      border-radius: 10px;
+      padding: 10px 20px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    #pp-reminder-modal .pp-reminder-close-btn:hover {
+      background: #334155;
+    }
+
+    /* Custom Dialog Styles (Centered Pop-ups) */
+    .pp-dialog-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 24px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+      margin: auto;
+      animation: ppModalPopIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .pp-dialog-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .pp-dialog-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .pp-dialog-close-btn {
+      background: #334155;
+      border: none;
+      color: #94a3b8;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .pp-dialog-close-btn:hover {
+      background: #475569;
+      color: #ffffff;
+    }
+
+    .pp-dialog-delete-badge {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background: #ef4444;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 4px auto;
+      font-size: 1.5rem;
+    }
+
+    .pp-dialog-delete-title {
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .pp-dialog-delete-msg {
+      text-align: center;
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.4;
+    }
+
+    .pp-dialog-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .pp-dialog-actions .pp-btn {
+      flex: 1;
+      height: 44px;
+      font-weight: 600;
+    }
+
+    /* Highlighting */
+    #pp-root mark {
+      background: rgba(234, 179, 8, 0.4);
+      color: inherit;
+      padding: 0 2px;
+      border-radius: 2px;
+    }
+  </style>
+<link rel="stylesheet" href="../fonts/fonts.css">
+</head>
+<body>
+
+<!-- Single Root Container -->
+<div id="pp-root">
+  <div class="pp-layout">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside class="pp-sidebar">
+      <div class="pp-sidebar-header">
+        <div class="pp-title">
+          <span>🎬</span> Post Planner
+        </div>
+        <button class="pp-btn pp-btn-icon" id="pp-theme-toggle" title="Alternar Tema">🌙</button>
+      </div>
+
+      <div class="pp-sidebar-content">
+        <!-- Quick Stats Banner -->
+        <div style="background: var(--pp-bg-card); border: 1px solid var(--pp-border); border-radius: 10px; padding: 12px;">
+          <h4 style="font-size: 0.85rem; color: var(--pp-text-muted); margin-bottom: 6px;">ESTATÍSTICAS</h4>
+          <div id="pp-sidebar-stats" style="font-size: 0.85rem; display: flex; flex-direction: column; gap: 4px;">
+            <!-- Stats -->
+          </div>
+        </div>
+
+        <!-- Section: Settings Quick Menu -->
+        <div style="background: var(--pp-bg-card); border: 1px solid var(--pp-border); border-radius: 10px; padding: 14px;">
+          <h3 style="font-size: 0.95rem; margin-bottom: 10px;">Menu Rápido</h3>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <button class="pp-btn pp-btn-block" id="pp-btn-open-popup">🔔 Ver Lembretes</button>
+            <button class="pp-btn pp-btn-block" id="pp-btn-go-settings">⚙️ Definições & Canais</button>
+            <button class="pp-btn pp-btn-block" id="pp-btn-paste-example">Colar Dados de Exemplo</button>
+          </div>
+        </div>
+
+        <!-- Section: Backup Reminder -->
+        <div id="pp-backup-reminder" style="display: none; background: rgba(234, 179, 8, 0.15); border: 1px solid var(--pp-warning); padding: 10px; border-radius: 8px; font-size: 0.85rem;">
+          ⚠️ Não faz um backup há mais de 7 dias.
+          <button class="pp-btn pp-btn-warning pp-btn-block" id="pp-btn-quick-export" style="margin-top: 6px; min-height: 32px;">Exportar Agora</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- RIGHT MAIN AREA -->
+    <main class="pp-main-area">
+      <!-- Toast Container for Notifications -->
+      <div id="pp-toast-container" class="pp-toast-container"></div>
+
+      <!-- Main Navigation Tabs -->
+      <nav class="pp-nav" id="pp-main-nav">
+        <button class="pp-tab pp-active" data-target="pp-screen-list" data-tab="pendente">
+          Pendentes <span class="pp-badge" id="pp-cnt-pendente">0</span>
+        </button>
+        <button class="pp-tab" data-target="pp-screen-list" data-tab="agendado">
+          Agendados <span class="pp-badge" id="pp-cnt-agendado">0</span>
+        </button>
+        <button class="pp-tab" data-target="pp-screen-list" data-tab="publicado">
+          Publicados <span class="pp-badge" id="pp-cnt-publicado">0</span>
+        </button>
+        <button class="pp-tab" data-target="pp-screen-import" title="Colar JSON">📋 Importar</button>
+        <button class="pp-tab" data-target="pp-screen-edit" data-action="new" title="Criar Manual">➕ Novo</button>
+        <button class="pp-tab" data-target="pp-screen-settings" title="Definições">⚙️</button>
+      </nav>
+
+      <!-- ==================== SCREEN: LIST ==================== -->
+      <section id="pp-screen-list" class="pp-screen pp-active">
+        
+        <!-- Channels Filter Chips -->
+        <div class="pp-channels-bar" id="pp-channels-chips">
+          <!-- Dynamic chips generated here -->
+        </div>
+
+        <!-- Controls: Search & Options -->
+        <div class="pp-controls">
+          <div class="pp-search-box">
+            <input type="text" id="pp-search-input" class="pp-input" placeholder="Pesquisar títulos, tags, descrição...">
+            <div style="margin-top: 4px;">
+              <label style="display: flex; align-items: center; gap: 4px; font-size: 0.8rem; cursor: pointer; color: var(--pp-text-muted);">
+                <input type="checkbox" id="pp-search-inc-pub"> Incluir publicados na pesquisa
+              </label>
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <select id="pp-sort-select" class="pp-select" style="width: 150px;">
+              <option value="recent">Mais recente</option>
+              <option value="oldest">Mais antigo</option>
+              <option value="alpha">A – Z</option>
+              <option value="agendamento">Agendamento</option>
+            </select>
+            <button class="pp-btn" id="pp-toggle-view" title="Alternar Grelha/Lista" style="padding:6px; min-width:44px; min-height:44px;">
+              <span id="pp-view-icon-holder" style="display:flex; align-items:center; justify-content:center;"></span>
+            </button>
+            <button class="pp-btn" id="pp-btn-select-mode">Selecionar</button>
+          </div>
+        </div>
+
+        <!-- Video Cards Container -->
+        <div id="pp-cards-container" class="pp-grid">
+          <!-- Rendered Cards -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="pp-empty-state" style="display: none; text-align: center; padding: 40px 20px; color: var(--pp-text-muted);">
+          <div style="font-size: 3rem; margin-bottom: 12px;">📭</div>
+          <p style="font-size: 1.1rem; font-weight: 600; margin-bottom: 8px;">Nenhum vídeo encontrado</p>
+          <p style="font-size: 0.9rem; margin-bottom: 16px;">Começa por importar dados em JSON ou cria uma ficha manual.</p>
+          <button class="pp-btn pp-btn-primary" id="pp-empty-import-btn">📋 Colar JSON</button>
+        </div>
+
+        <!-- Bulk Actions Overlay Bar -->
+        <div id="pp-bulk-bar" class="pp-bulk-bar" style="display: none;">
+          <span id="pp-bulk-count" style="font-weight: bold; font-size: 0.9rem;">0 selecionados</span>
+          <div style="display: flex; gap: 6px; overflow-x: auto;">
+            <button class="pp-btn pp-btn-warning" id="pp-bulk-agendar" style="padding: 6px 10px; font-size: 0.8rem;">Agendar</button>
+            <button class="pp-btn pp-btn-success" id="pp-bulk-publicar" style="padding: 6px 10px; font-size: 0.8rem;">Publicar</button>
+            <button class="pp-btn" id="pp-bulk-canal" style="padding: 6px 10px; font-size: 0.8rem;">Mudar Canal</button>
+            <button class="pp-btn pp-btn-danger" id="pp-bulk-delete" style="padding: 6px 10px; font-size: 0.8rem;">Apagar</button>
+            <button class="pp-btn" id="pp-bulk-cancel" style="padding: 6px 10px; font-size: 0.8rem;">Cancelar</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== SCREEN: IMPORT JSON ==================== -->
+      <section id="pp-screen-import" class="pp-screen">
+        <h2 style="font-size: 1.1rem; margin-bottom: 12px;">Importar Bloco JSON</h2>
+        <p style="font-size: 0.85rem; color: var(--pp-text-muted); margin-bottom: 12px;">
+          Cola um ou vários blocos de vídeos em JSON. Aceita objetos únicos, listas `[...]`, ou Markdown.<br>
+          <small style="color:var(--pp-primary);">💡 Usa Shift + Enter para analisar / Enter para guardar.</small>
+        </p>
+        
+        <textarea id="pp-import-textarea" class="pp-textarea" style="min-height: 180px; font-family: monospace;" placeholder="Cola o JSON aqui..."></textarea>
+        
+        <div style="display: flex; gap: 8px; margin: 12px 0;">
+          <button class="pp-btn pp-btn-primary" id="pp-btn-parse">Analisar (Shift + Enter ou Ctrl + Enter)</button>
+          <button class="pp-btn" id="pp-btn-clear-import">Limpar</button>
+        </div>
+
+        <!-- Parse Results Preview -->
+        <div id="pp-parse-results" style="display: none; margin-top: 16px;">
+          <h3 id="pp-parse-summary" style="font-size: 1rem; margin-bottom: 12px;"></h3>
+          
+          <div id="pp-parse-list" style="max-height: 300px; overflow-y: auto; margin-bottom: 16px;"></div>
+
+          <button class="pp-btn pp-btn-success pp-btn-block" id="pp-btn-save-parsed">Criar Vídeos Válidos (Enter)</button>
+        </div>
+      </section>
+
+      <!-- ==================== SCREEN: DETAIL (COPY ENGINE) ==================== -->
+      <section id="pp-screen-detail" class="pp-screen">
+        <!-- Top Navigation within Detail -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <button class="pp-btn" id="pp-detail-back">← Voltar</button>
+          <div style="display: flex; gap: 6px;">
+            <button class="pp-btn" id="pp-detail-prev">← Ant.</button>
+            <button class="pp-btn" id="pp-detail-next">Seg. →</button>
+          </div>
+        </div>
+
+        <!-- Header Meta & Sequential Copy Button -->
+        <div style="background: var(--pp-bg-card); border: 1px solid var(--pp-border); border-radius: 10px; padding: 12px; margin-bottom: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span id="pp-detail-channel" class="pp-card-channel"></span>
+            <span id="pp-detail-status" class="pp-status-tag"></span>
+          </div>
+          
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 10px; border-top: 1px solid var(--pp-border); padding-top: 10px;">
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <label style="font-size: 0.85rem; color: var(--pp-text-muted);">Agendado para:</label>
+              <input type="datetime-local" id="pp-detail-date" class="pp-input" style="width: auto; min-height: 36px; padding: 4px 8px;">
+            </div>
+
+            <!-- BOTÃO DE CÓPIA SEQUENCIAL -->
+            <button class="pp-btn pp-btn-warning" id="pp-btn-copy-seq" style="font-weight:700; flex:1; max-width:280px;">
+              ⚡ Copiar Tags (1/3)
+            </button>
+          </div>
+        </div>
+
+        <!-- 3 Copy Blocks -->
+        <!-- BLOCK 1: TITLE -->
+        <div class="pp-detail-block" id="pp-block-title">
+          <div class="pp-block-label">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span>TÍTULO</span>
+              <span class="pp-char-counter" id="pp-cnt-title">0/100</span>
+            </div>
+            <button class="pp-btn pp-btn-primary pp-copy-btn" data-target="title" style="min-height:32px; padding:2px 12px; font-size:0.8rem;">
+              Copiar Título
+            </button>
+          </div>
+          <div class="pp-code-box" id="pp-val-title"></div>
+        </div>
+
+        <!-- BLOCK 2: DESCRIPTION -->
+        <div class="pp-detail-block" id="pp-block-desc">
+          <div class="pp-block-label">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span>DESCRIÇÃO</span>
+              <span class="pp-char-counter" id="pp-cnt-desc">0/5000</span>
+            </div>
+            <button class="pp-btn pp-btn-primary pp-copy-btn" data-target="desc" style="min-height:32px; padding:2px 12px; font-size:0.8rem;">
+              Copiar Descrição
+            </button>
+          </div>
+          <div class="pp-code-box" id="pp-val-desc"></div>
+        </div>
+
+        <!-- BLOCK 3: TAGS -->
+        <div class="pp-detail-block" id="pp-block-tags">
+          <div class="pp-block-label">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span>TAGS</span>
+              <span class="pp-char-counter" id="pp-cnt-tags">0/500</span>
+            </div>
+            <button class="pp-btn pp-btn-primary pp-copy-btn" data-target="tags" style="min-height:32px; padding:2px 12px; font-size:0.8rem;">
+              Copiar Tags
+            </button>
+          </div>
+          <div class="pp-code-box" id="pp-val-tags"></div>
+        </div>
+
+        <!-- Actions Footer -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px;">
+          <button class="pp-btn pp-btn-warning" id="pp-detail-btn-sched">Marcar como Agendado</button>
+          <button class="pp-btn pp-btn-success" id="pp-detail-btn-pub">Marcar como Publicado</button>
+          <button class="pp-btn" id="pp-detail-btn-ics">📅 Adicionar ao Calendário (.ics)</button>
+          <button class="pp-btn" id="pp-detail-btn-edit">Editar Ficha</button>
+          <button class="pp-btn" id="pp-detail-btn-dup">Duplicar Ficha</button>
+          <button class="pp-btn pp-btn-danger" id="pp-detail-btn-del">Apagar Ficha</button>
+        </div>
+      </section>
+
+      <!-- ==================== SCREEN: EDIT / MANUAL CREATE ==================== -->
+      <section id="pp-screen-edit" class="pp-screen">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <h2 style="font-size: 1.1rem;" id="pp-edit-heading">Editar Vídeo</h2>
+          <button class="pp-btn" id="pp-edit-cancel">Cancelar</button>
+        </div>
+
+        <form id="pp-edit-form" style="display: flex; flex-direction: column; gap: 12px;">
+          <input type="hidden" id="pp-edit-id">
+
+          <div>
+            <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 4px;">Canal</label>
+            <div style="display: flex; gap: 8px;">
+              <select id="pp-edit-channel-select" class="pp-select" style="flex: 1;"></select>
+              <input type="text" id="pp-edit-channel-new" class="pp-input" placeholder="Ou novo canal..." style="flex: 1;">
+            </div>
+          </div>
+
+          <div>
+            <div style="display: flex; justify-content: space-between;">
+              <label style="font-size: 0.85rem; font-weight: 600; margin-bottom: 4px;">Título</label>
+              <span class="pp-char-counter" id="pp-form-cnt-title">0/100</span>
+            </div>
+            <input type="text" id="pp-edit-title" class="pp-input" required>
+          </div>
+
+          <div>
+            <div style="display: flex; justify-content: space-between;">
+              <label style="font-size: 0.85rem; font-weight: 600; margin-bottom: 4px;">Descrição</label>
+              <span class="pp-char-counter" id="pp-form-cnt-desc">0/5000</span>
+            </div>
+            <textarea id="pp-edit-desc" class="pp-textarea" style="min-height: 140px;"></textarea>
+          </div>
+
+          <div>
+            <div style="display: flex; justify-content: space-between;">
+              <label style="font-size: 0.85rem; font-weight: 600; margin-bottom: 4px;">Tags (separadas por vírgulas)</label>
+              <span class="pp-char-counter" id="pp-form-cnt-tags">0/500</span>
+            </div>
+            <input type="text" id="pp-edit-tags" class="pp-input" placeholder="tag1, tag2, tag3">
+          </div>
+
+          <div style="display: flex; gap: 8px;">
+            <div style="flex: 1;">
+              <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 4px;">Estado</label>
+              <select id="pp-edit-status" class="pp-select">
+                <option value="pendente">Pendente</option>
+                <option value="agendado">Agendado</option>
+                <option value="publicado">Publicado</option>
+              </select>
+            </div>
+            <div style="flex: 1;">
+              <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 4px;">Agendado para</label>
+              <input type="datetime-local" id="pp-edit-date" class="pp-input">
+            </div>
+          </div>
+
+          <button type="submit" class="pp-btn pp-btn-primary pp-btn-block" style="margin-top: 8px;">Guardar Ficha</button>
+        </form>
+      </section>
+
+      <!-- ==================== SCREEN: SETTINGS & CHANNELS ==================== -->
+      <section id="pp-screen-settings" class="pp-screen">
+        <h2 style="font-size: 1.1rem; margin-bottom: 12px;">Definições & Gestão de Canais</h2>
+
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <!-- Section: Channels Management -->
+          <div style="background: var(--pp-bg-card); border: 1px solid var(--pp-border); border-radius: 10px; padding: 14px;">
+            <h3 style="font-size: 0.95rem; margin-bottom: 10px;">Gestão de Canais</h3>
+            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+              <input type="text" id="pp-new-channel-name" class="pp-input" placeholder="Nome do novo canal">
+              <button class="pp-btn pp-btn-primary" id="pp-btn-add-channel" style="padding: 8px 12px;">+ Adicionar</button>
+            </div>
+            <div id="pp-channels-list-settings" style="display: flex; flex-direction: column; gap: 8px;">
+              <!-- Channel items rendered dynamically -->
+            </div>
+          </div>
+
+          <!-- Section: Global Settings -->
+          <div style="background: var(--pp-bg-card); border: 1px solid var(--pp-border); border-radius: 10px; padding: 14px;">
+            <h3 style="font-size: 0.95rem; margin-bottom: 12px;">Opções Globais</h3>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px;">
+              <div>
+                <label style="font-size: 0.8rem; font-weight: 600; display: block; margin-bottom: 4px;">Limite Diário Global</label>
+                <input type="number" id="pp-set-limite-global" class="pp-input" min="1" max="100">
+              </div>
+
+              <div>
+                <label style="font-size: 0.8rem; font-weight: 600; display: block; margin-bottom: 4px;">Modo de Contagem</label>
+                <select id="pp-set-modo-contagem" class="pp-select">
+                  <option value="24h">24h Deslizantes</option>
+                  <option value="dia">Dia de Calendário (00:00)</option>
+                </select>
+              </div>
+
+              <div>
+                <label style="font-size: 0.8rem; font-weight: 600; display: block; margin-bottom: 4px;">Horas de Pausa do Limite</label>
+                <input type="number" id="pp-set-horas-pausa" class="pp-input" min="1" max="72">
+              </div>
+
+              <div>
+                <label style="font-size: 0.8rem; font-weight: 600; display: block; margin-bottom: 4px;">Intervalo Pop-up (minutos)</label>
+                <input type="number" id="pp-set-intervalo-popup" class="pp-input" min="5" max="1440">
+              </div>
+
+              <div>
+                <label style="font-size: 0.8rem; font-weight: 600; display: block; margin-bottom: 4px;">Antecedência do Aviso (minutos)</label>
+                <input type="number" id="pp-set-antecedencia-aviso" class="pp-input" min="5" max="1440">
+              </div>
+
+              <div>
+                <label style="font-size: 0.8rem; font-weight: 600; display: block; margin-bottom: 4px;">Passagem a Publicado</label>
+                <select id="pp-set-auto-publicar" class="pp-select">
+                  <option value="automatico">Automático (por hora)</option>
+                  <option value="perguntar">Perguntar no Pop-up</option>
+                  <option value="nunca">Nunca alterar sozinho</option>
+                </select>
+              </div>
+
+              <div>
+                <label style="font-size: 0.8rem; font-weight: 600; display: block; margin-bottom: 4px;">Alarme Calendário (.ics) (min)</label>
+                <input type="number" id="pp-set-alarme-antes" class="pp-input" min="0" max="1440">
+              </div>
+            </div>
+
+            <button class="pp-btn pp-btn-primary" id="pp-btn-save-settings" style="margin-top: 12px;">Guardar Opções Globais</button>
+          </div>
+
+          <!-- Section: Backup & Restore -->
+          <div style="background: var(--pp-bg-card); border: 1px solid var(--pp-border); border-radius: 10px; padding: 14px;">
+            <h3 style="font-size: 0.95rem; margin-bottom: 10px;">Backup & Restauro</h3>
+            <p style="font-size: 0.85rem; color: var(--pp-text-muted); margin-bottom: 10px;" id="pp-backup-info">
+              Total de fichas: 0 | Último backup: Nunca
+            </p>
+
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <button class="pp-btn pp-btn-primary pp-btn-block" id="pp-btn-export">Exportar Backup JSON</button>
+              
+              <div style="border-top: 1px solid var(--pp-border); padding-top: 10px; margin-top: 4px;">
+                <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 6px;">Importar Ficheiro de Backup</label>
+                <input type="file" id="pp-file-import" accept=".json" class="pp-input" style="padding: 6px;">
+                <div style="display: flex; gap: 8px; margin-top: 8px;">
+                  <button class="pp-btn pp-btn-success" id="pp-btn-import-merge" style="flex: 1;">Juntar (Manter)</button>
+                  <button class="pp-btn pp-btn-danger" id="pp-btn-import-replace" style="flex: 1;">Substituir Tudo</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Danger Zone -->
+          <div style="background: var(--pp-bg-card); border: 1px solid var(--pp-danger); border-radius: 10px; padding: 14px;">
+            <h3 style="font-size: 0.95rem; color: var(--pp-danger); margin-bottom: 8px;">Zona de Perigo</h3>
+            <button class="pp-btn pp-btn-danger pp-btn-block" id="pp-btn-reset-all">Apagar Todos os Dados Permanentemente</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+  </div>
+
+  <!-- REMINDER MODAL POP-UP (Centered Inside Container) -->
+  <div id="pp-reminder-modal" class="pp-modal-overlay" style="display: none;">
+    <div class="pp-modal-content">
+      <div class="pp-reminder-header">
+        <h3>🔔 Lembretes do Post Planner</h3>
+        <button class="pp-reminder-close" id="pp-modal-close-x" title="Fechar">✕</button>
+      </div>
+      <div class="pp-reminder-body" id="pp-modal-body-content">
+        <!-- Dynamic reminder items -->
+      </div>
+      <div class="pp-reminder-footer">
+        <span class="pp-reminder-note">Estas ações requerem revisão antes da publicação</span>
+        <button class="pp-reminder-close-btn" id="pp-modal-close-btn">Fechar Lembretes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CUSTOM CONFIRM / PROMPT DIALOG MODAL (Centered Inside Container) -->
+  <div id="pp-custom-dialog-modal" class="pp-modal-overlay" style="display: none;">
+    <div class="pp-dialog-card" id="pp-dialog-card-content">
+      <!-- Injected dynamically -->
+    </div>
+  </div>
+
+</div>
+
+<!-- JavaScript Logic IIFE -->
+<script>
+(function() {
+  'use strict';
+
+  // ==========================================
+  // 1. STORAGE MODULE (IndexedDB + LocalStorage Fallback)
+  // ==========================================
+  const Storage = {
+    db: null,
+    DB_NAME: 'post_planner',
+    DB_VERSION: 1,
+
+    async init() {
+      if ('storage' in navigator && 'persist' in navigator.storage) {
+        try { await navigator.storage.persist(); } catch (e) {}
+      }
+
+      return new Promise((resolve) => {
+        let done = false;
+        const finish = (ok) => { if (!done) { done = true; resolve(ok); } };
+        setTimeout(() => finish(false), 2000);
+        try {
+          if (!window.indexedDB) { finish(false); return; }
+          const req = indexedDB.open(this.DB_NAME, this.DB_VERSION);
+          req.onblocked = () => finish(false);
+          req.onupgradeneeded = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains('videos')) {
+              db.createObjectStore('videos', { keyPath: 'id' });
+            }
+            if (!db.objectStoreNames.contains('settings')) {
+              db.createObjectStore('settings', { keyPath: 'key' });
+            }
+          };
+          req.onsuccess = (e) => {
+            this.db = e.target.result;
+            finish(true);
+          };
+          req.onerror = () => finish(false);
+        } catch (err) { finish(false); }
+      });
+    },
+
+    async getVideos() {
+      if (this.db) {
+        return new Promise((resolve) => {
+          const tx = this.db.transaction('videos', 'readonly');
+          const req = tx.objectStore('videos').getAll();
+          req.onsuccess = () => resolve(req.result || []);
+          req.onerror = () => resolve(this.getVideosLS());
+        });
+      }
+      return this.getVideosLS();
+    },
+
+    async saveVideos(videos) {
+      if (this.db) {
+        return new Promise((resolve) => {
+          const tx = this.db.transaction('videos', 'readwrite');
+          const store = tx.objectStore('videos');
+          store.clear();
+          videos.forEach(v => store.put(v));
+          tx.oncomplete = () => resolve(true);
+          tx.onerror = () => {
+            this.saveVideosLS(videos);
+            resolve(false);
+          };
+        });
+      }
+      this.saveVideosLS(videos);
+    },
+
+    async getSetting(key, defaultValue) {
+      if (this.db) {
+        return new Promise((resolve) => {
+          const tx = this.db.transaction('settings', 'readonly');
+          const req = tx.objectStore('settings').get(key);
+          req.onsuccess = () => resolve(req.result ? req.result.val : defaultValue);
+          req.onerror = () => resolve(this.getSettingLS(key, defaultValue));
+        });
+      }
+      return this.getSettingLS(key, defaultValue);
+    },
+
+    async saveSetting(key, val) {
+      if (this.db) {
+        const tx = this.db.transaction('settings', 'readwrite');
+        tx.objectStore('settings').put({ key, val });
+      }
+      this.saveSettingLS(key, val);
+    },
+
+    async clearAll() {
+      this.mem = {};
+      try {
+        localStorage.removeItem('pp_videos');
+        localStorage.removeItem('pp_channels');
+        localStorage.removeItem('pp_global_settings');
+      } catch (e) {}
+
+      if (this.db) {
+        try {
+          const tx = this.db.transaction(['videos', 'settings'], 'readwrite');
+          tx.objectStore('videos').clear();
+          tx.objectStore('settings').clear();
+        } catch (e) {}
+      }
+    },
+
+    mem: {},
+    getVideosLS() {
+      try {
+        return JSON.parse(localStorage.getItem('pp_videos') || '[]');
+      } catch (e) { return this.mem.videos || []; }
+    },
+    saveVideosLS(v) {
+      try { localStorage.setItem('pp_videos', JSON.stringify(v)); } catch (e) { this.mem.videos = v; }
+    },
+    getSettingLS(k, d) {
+      try {
+        const item = localStorage.getItem('pp_' + k);
+        return item ? JSON.parse(item) : d;
+      } catch (e) { return (k in this.mem) ? this.mem[k] : d; }
+    },
+    saveSettingLS(k, v) {
+      try { localStorage.setItem('pp_' + k, JSON.stringify(v)); } catch (e) { this.mem[k] = v; }
+    }
+  };
+
+  // ==========================================
+  // 2. PARSER MODULE (Robust JSON Chunk Reader)
+  // ==========================================
+  const Parser = {
+    extractObjects(text) {
+      if (!text) return [];
+      let cleaned = text.replace(/```(?:json)?/gi, '').replace(/```/g, '').trim();
+
+      const objects = [];
+      let inString = false;
+      let isEscaped = false;
+      let depth = 0;
+      let startIndex = -1;
+
+      for (let i = 0; i < cleaned.length; i++) {
+        const char = cleaned[i];
+
+        if (inString) {
+          if (isEscaped) {
+            isEscaped = false;
+          } else if (char === '\\') {
+            isEscaped = true;
+          } else if (char === '"') {
+            inString = false;
+          }
+        } else {
+          if (char === '"') {
+            inString = true;
+          } else if (char === '{') {
+            if (depth === 0) startIndex = i;
+            depth++;
+          } else if (char === '}') {
+            depth--;
+            if (depth === 0 && startIndex !== -1) {
+              objects.push(cleaned.substring(startIndex, i + 1));
+              startIndex = -1;
+            }
+          }
+        }
+      }
+      return objects;
+    },
+
+    parseBatch(rawText) {
+      const chunks = this.extractObjects(rawText);
+      const results = [];
+
+      chunks.forEach((chunkStr, idx) => {
+        try {
+          const parsed = JSON.parse(chunkStr);
+          const title = parsed.titulo || parsed.title;
+          if (!title || typeof title !== 'string' || !title.trim()) {
+            results.push({ success: false, index: idx + 1, error: "Campo 'titulo' ausente ou inválido." });
+            return;
+          }
+
+          let channel = parsed.canal || parsed.channel || "Sem canal";
+          channel = channel.trim();
+
+          const description = parsed.descricao || parsed.description || "";
+
+          let rawTags = parsed.tags || [];
+          let normTags = [];
+          if (Array.isArray(rawTags)) {
+            normTags = rawTags.map(t => String(t).trim()).filter(Boolean);
+          } else if (typeof rawTags === 'string') {
+            normTags = rawTags.split(',').map(t => t.trim()).filter(Boolean);
+          }
+          normTags = [...new Set(normTags)];
+
+          let agendarPara = parsed.agendarPara || parsed.schedule || null;
+          let warning = null;
+          if (agendarPara) {
+            const d = new Date(agendarPara);
+            if (isNaN(d.getTime())) {
+              warning = "Data/Hora de agendamento em formato inválido. Ignorado.";
+              agendarPara = null;
+            } else {
+              const y = d.getFullYear();
+              const m = String(d.getMonth() + 1).padStart(2, '0');
+              const day = String(d.getDate()).padStart(2, '0');
+              const hh = String(d.getHours()).padStart(2, '0');
+              const mm = String(d.getMinutes()).padStart(2, '0');
+              agendarPara = `${y}-${m}-${day}T${hh}:${mm}`;
+            }
+          }
+
+          results.push({
+            success: true,
+            index: idx + 1,
+            warning: warning,
+            data: {
+              canal: channel,
+              titulo: title.trim(),
+              descricao: String(description),
+              tags: normTags,
+              agendarPara: agendarPara
+            }
+          });
+        } catch (err) {
+          results.push({
+            success: false,
+            index: idx + 1,
+            error: "JSON inválido: " + err.message
+          });
+        }
+      });
+
+      return results;
+    }
+  };
+
+  // ==========================================
+  // 3. CUSTOM DIALOG ENGINE (Matches User Mockup)
+  // ==========================================
+  const CustomDialog = {
+    modal: null,
+    card: null,
+
+    init() {
+      this.modal = document.getElementById('pp-custom-dialog-modal');
+      this.card = document.getElementById('pp-dialog-card-content');
+    },
+
+    prompt(title, label, defaultValue, helpText = '') {
+      return new Promise((resolve) => {
+        this.init();
+        this.card.innerHTML = `
+          <div class="pp-dialog-header">
+            <h3 class="pp-dialog-title">${title}</h3>
+            <button class="pp-dialog-close-btn" id="pp-dialog-x">✕</button>
+          </div>
+          <div>
+            <label style="font-size:0.85rem; font-weight:600; color:#94a3b8; display:block; margin-bottom:6px;">${label}</label>
+            <input type="text" id="pp-dialog-input" class="pp-input" value="${defaultValue || ''}" style="background:#1e293b; border-color:#334155; font-size:1rem;">
+            ${helpText ? `<p style="font-size:0.8rem; color:#64748b; margin-top:6px;">${helpText}</p>` : ''}
+          </div>
+          <div class="pp-dialog-actions">
+            <button class="pp-btn" id="pp-dialog-cancel" style="background:#263346; border-color:#334155;">Cancelar</button>
+            <button class="pp-btn pp-btn-primary" id="pp-dialog-confirm">Salvar</button>
+          </div>
+        `;
+
+        this.modal.style.display = 'flex';
+        const input = document.getElementById('pp-dialog-input');
+        
+        setTimeout(() => {
+          if (input) {
+            input.focus();
+            input.select();
+          }
+        }, 50);
+
+        const close = (val) => {
+          this.modal.style.display = 'none';
+          window.removeEventListener('keydown', handleKey);
+          resolve(val);
+        };
+
+        const handleKey = (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            close(input.value.trim());
+          } else if (e.key === 'Escape') {
+            e.preventDefault();
+            close(null);
+          }
+        };
+
+        window.addEventListener('keydown', handleKey);
+        document.getElementById('pp-dialog-confirm').onclick = () => close(input.value.trim());
+        document.getElementById('pp-dialog-cancel').onclick = () => close(null);
+        document.getElementById('pp-dialog-x').onclick = () => close(null);
+      });
+    },
+
+    confirmDelete(title, message, confirmBtnText = 'Apagar tudo') {
+      return new Promise((resolve) => {
+        this.init();
+        this.card.innerHTML = `
+          <div>
+            <div class="pp-dialog-delete-badge">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+              </svg>
+            </div>
+            <h3 class="pp-dialog-delete-title">${title}</h3>
+          </div>
+          <p class="pp-dialog-delete-msg">${message}</p>
+          <div class="pp-dialog-actions">
+            <button class="pp-btn" id="pp-dialog-cancel" style="background:#263346; border-color:#334155; color:#ffffff;">Voltar</button>
+            <button class="pp-btn pp-btn-danger" id="pp-dialog-confirm">${confirmBtnText}</button>
+          </div>
+        `;
+
+        this.modal.style.display = 'flex';
+
+        const close = (result) => {
+          this.modal.style.display = 'none';
+          window.removeEventListener('keydown', handleKey);
+          resolve(result);
+        };
+
+        const handleKey = (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            close(true);
+          } else if (e.key === 'Escape' || e.key === ' ') {
+            e.preventDefault();
+            close(false);
+          }
+        };
+
+        window.addEventListener('keydown', handleKey);
+        document.getElementById('pp-dialog-confirm').onclick = () => close(true);
+        document.getElementById('pp-dialog-cancel').onclick = () => close(false);
+      });
+    }
+  };
+
+  // ==========================================
+  // 4. ICS CALENDAR GENERATOR MODULE
+  // ==========================================
+  const ICSGenerator = {
+    formatICSDate(dateObj) {
+      const y = dateObj.getFullYear();
+      const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const d = String(dateObj.getDate()).padStart(2, '0');
+      const hh = String(dateObj.getHours()).padStart(2, '0');
+      const mm = String(dateObj.getMinutes()).padStart(2, '0');
+      const ss = String(dateObj.getSeconds()).padStart(2, '0');
+      return `${y}${m}${d}T${hh}${mm}${ss}`;
+    },
+
+    formatUTC(dateObj) {
+      const y = dateObj.getUTCFullYear();
+      const m = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
+      const d = String(dateObj.getUTCDate()).padStart(2, '0');
+      const hh = String(dateObj.getUTCHours()).padStart(2, '0');
+      const mm = String(dateObj.getUTCMinutes()).padStart(2, '0');
+      const ss = String(dateObj.getUTCSeconds()).padStart(2, '0');
+      return `${y}${m}${d}T${hh}${mm}${ss}Z`;
+    },
+
+    foldLine(line) {
+      if (line.length <= 75) return line;
+      let result = '';
+      let current = line;
+      while (current.length > 75) {
+        result += current.substring(0, 75) + '\r\n ';
+        current = current.substring(75);
+      }
+      result += current;
+      return result;
+    },
+
+    escapeText(str) {
+      return (str || '')
+        .replace(/\\/g, '\\\\')
+        .replace(/;/g, '\\;')
+        .replace(/,/g, '\\,')
+        .replace(/\n/g, '\\n');
+    },
+
+    createICS(events, alarmBeforeMin = 30) {
+      const nowUTC = this.formatUTC(new Date());
+      let lines = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//Post Planner//PT',
+        'CALSCALE:GREGORIAN'
+      ];
+
+      events.forEach((evt, idx) => {
+        const dtStart = new Date(evt.start);
+        const dtEnd = new Date(dtStart.getTime() + (evt.durationMin || 15) * 60000);
+        const uid = (evt.id || Date.now() + '_' + idx) + '@postplanner';
+
+        lines.push('BEGIN:VEVENT');
+        lines.push(`UID:${uid}`);
+        lines.push(`DTSTAMP:${nowUTC}`);
+        lines.push(`DTSTART:${this.formatICSDate(dtStart)}`);
+        lines.push(`DTEND:${this.formatICSDate(dtEnd)}`);
+        lines.push(`SUMMARY:${this.escapeText(evt.title)}`);
+        lines.push(`DESCRIPTION:${this.escapeText(evt.description)}`);
+
+        lines.push('BEGIN:VALARM');
+        lines.push('ACTION:DISPLAY');
+        lines.push(`DESCRIPTION:${this.escapeText(evt.title)}`);
+        lines.push(`TRIGGER:-PT${alarmBeforeMin}M`);
+        lines.push('END:VALARM');
+
+        lines.push('BEGIN:VALARM');
+        lines.push('ACTION:DISPLAY');
+        lines.push(`DESCRIPTION:${this.escapeText(evt.title)}`);
+        lines.push('TRIGGER:PT0M');
+        lines.push('END:VALARM');
+
+        lines.push('END:VEVENT');
+      });
+
+      lines.push('END:VCALENDAR');
+
+      return lines.map(l => this.foldLine(l)).join('\r\n') + '\r\n';
+    },
+
+    download(filename, content) {
+      const blob = new Blob([content], { type: 'text/calendar;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  };
+
+  // ==========================================
+  // 5. MAIN APPLICATION LOGIC
+  // ==========================================
+  const App = {
+    videos: [],
+    channels: [],
+    settings: {
+      tema: 'escuro',
+      vista: 'lista',
+      ordenacao: 'recentes',
+      limiteDiarioGlobal: 10,
+      modoContagem: '24h',
+      horasPausaLimite: 25,
+      intervaloPopupMin: 60,
+      antecedenciaAvisoMin: 120,
+      autoPublicar: 'automatico',
+      alarmeAntesMin: 30,
+      ultimoPopup: null,
+      ultimoBackup: null
+    },
+
+    // UI State
+    currentTab: 'pendente',
+    selectedChannel: 'ALL',
+    searchQuery: '',
+    searchIncPub: false,
+    selectedIds: new Set(),
+    isSelectMode: false,
+    currentDetailId: null,
+    detailList: [],
+    copiedSessionBlocks: new Set(),
+    parseResultsCache: [],
+    copySeqStep: 1,
+
+    async init() {
+      try { await Storage.init(); } catch (e) {}
+
+      let savedChannels = [], savedSettings = null;
+      try {
+        this.videos = await Storage.getVideos();
+        savedChannels = await Storage.getSetting('channels', []);
+        savedSettings = await Storage.getSetting('global_settings', null);
+      } catch (e) { this.videos = this.videos || []; }
+
+      if (savedSettings) {
+        this.settings = { ...this.settings, ...savedSettings };
+      }
+      this.channels = savedChannels;
+
+      this.applyTheme(this.settings.tema);
+      this.syncChannelsWithVideos();
+
+      this.bindEvents();
+      this.render();
+      this.checkBackupReminder();
+
+      this.checkAutoPublish();
+      this.checkLembretesPopup(false);
+
+      setInterval(() => {
+        this.checkAutoPublish();
+        this.checkLembretesPopup(false);
+      }, 60000);
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+          this.checkAutoPublish();
+          this.checkLembretesPopup(false);
+        }
+      });
+    },
+
+    // --- Helpers & Formatters ---
+    normalizeStr(str) {
+      return (str || '')
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, ' ')
+        .trim();
+    },
+
+    generateId() {
+      return Date.now().toString(36) + Math.random().toString(36).substring(2, 7);
+    },
+
+    formatDatePT(isoStr) {
+      if (!isoStr) return '';
+      const d = new Date(isoStr);
+      if (isNaN(d.getTime())) return isoStr;
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const year = d.getFullYear();
+      const hh = String(d.getHours()).padStart(2, '0');
+      const mm = String(d.getMinutes()).padStart(2, '0');
+      return `${day}/${month}/${year} às ${hh}:${mm}`;
+    },
+
+    formatDateOnlyPT(dateObj) {
+      const d = new Date(dateObj);
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const year = d.getFullYear();
+      return `${day}/${month}/${year}`;
+    },
+
+    getChanName(c) {
+      return (typeof c === 'object' && c !== null) ? (c.nome || '') : String(c || '');
+    },
+
+    syncChannelsWithVideos() {
+      let changed = false;
+      this.videos.forEach(v => {
+        const norm = this.normalizeStr(v.canal);
+        const exists = this.channels.some(c => this.normalizeStr(this.getChanName(c)) === norm);
+        if (!exists && v.canal) {
+          this.channels.push({
+            nome: v.canal.trim(),
+            limiteDiario: null,
+            pausaAte: null,
+            adiarAte: null
+          });
+          changed = true;
+        }
+      });
+      if (changed) {
+        Storage.saveSetting('channels', this.channels);
+      }
+    },
+
+    async saveState() {
+      await Storage.saveVideos(this.videos);
+      await Storage.saveSetting('channels', this.channels);
+      await Storage.saveSetting('global_settings', this.settings);
+      this.render();
+    },
+
+    applyTheme(theme) {
+      const root = document.getElementById('pp-root');
+      if (theme === 'claro') {
+        root.classList.add('pp-theme-light');
+        document.getElementById('pp-theme-toggle').textContent = '☀️';
+      } else {
+        root.classList.remove('pp-theme-light');
+        document.getElementById('pp-theme-toggle').textContent = '🌙';
+      }
+      this.settings.tema = theme;
+      Storage.saveSetting('global_settings', this.settings);
+    },
+
+    showToast(msg, undoCallback = null) {
+      const container = document.getElementById('pp-toast-container');
+      if (!container) return;
+
+      const toast = document.createElement('div');
+      toast.className = 'pp-toast';
+      toast.innerHTML = `<span>${msg}</span>`;
+
+      if (undoCallback) {
+        const undoBtn = document.createElement('button');
+        undoBtn.className = 'pp-btn pp-btn-warning';
+        undoBtn.style.padding = '2px 8px';
+        undoBtn.style.fontSize = '0.75rem';
+        undoBtn.style.minHeight = '28px';
+        undoBtn.textContent = 'Desfazer';
+        undoBtn.onclick = () => {
+          undoCallback();
+          toast.remove();
+        };
+        toast.appendChild(undoBtn);
+      }
+
+      container.appendChild(toast);
+      setTimeout(() => {
+        if (toast.parentNode) toast.remove();
+      }, undoCallback ? 5000 : 2500);
+    },
+
+    checkBackupReminder() {
+      if (this.videos.length === 0) return;
+      const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
+      const last = this.settings.ultimoBackup;
+      if (!last || (Date.now() - last > SEVEN_DAYS)) {
+        document.getElementById('pp-backup-reminder').style.display = 'block';
+      } else {
+        document.getElementById('pp-backup-reminder').style.display = 'none';
+      }
+    },
+
+    // --- Channel Upload Counter & Pause ---
+    getChannelObj(chanName) {
+      const norm = this.normalizeStr(chanName);
+      return this.channels.find(c => this.normalizeStr(this.getChanName(c)) === norm) || null;
+    },
+
+    getChannelLimit(chanName) {
+      const ch = this.getChannelObj(chanName);
+      if (ch && ch.limiteDiario !== null && ch.limiteDiario !== undefined) {
+        return parseInt(ch.limiteDiario, 10);
+      }
+      return parseInt(this.settings.limiteDiarioGlobal || 10, 10);
+    },
+
+    getChannelUploadCount(chanName) {
+      const now = Date.now();
+      const mode = this.settings.modoContagem || '24h';
+      let cutoff = 0;
+
+      if (mode === 'dia') {
+        const d = new Date();
+        d.setHours(0,0,0,0);
+        cutoff = d.getTime();
+      } else {
+        cutoff = now - (24 * 60 * 60 * 1000);
+      }
+
+      const normChan = this.normalizeStr(chanName);
+      return this.videos.filter(v => {
+        if (this.normalizeStr(v.canal) !== normChan) return false;
+        if (!v.enviadoEm) return false;
+        return v.enviadoEm >= cutoff;
+      }).length;
+    },
+
+    async setChannelLimitPause(chanName) {
+      const ch = this.getChannelObj(chanName);
+      if (!ch) return;
+      const hours = parseInt(this.settings.horasPausaLimite || 25, 10);
+      ch.pausaAte = Date.now() + (hours * 3600000);
+      this.saveState();
+      
+      this.showToast(`Lembretes de ${this.getChanName(ch)} pausados por ${hours}h.`);
+
+      const confirmed = await CustomDialog.confirmDelete(
+        "Lembrete no Calendário?",
+        `Atingiu o limite de ${this.getChanName(ch)}.\nDeseja descarregar um lembrete (.ics) para retomar o canal em ${hours} horas?`,
+        "Descarregar .ics"
+      );
+
+      if (confirmed) {
+        const resumeDate = new Date(ch.pausaAte);
+        const icsContent = ICSGenerator.createICS([{
+          title: `Retomar uploads: ${this.getChanName(ch)}`,
+          description: `Pausa do limite atingido concluída para o canal ${this.getChanName(ch)}.`,
+          start: resumeDate,
+          durationMin: 15
+        }], this.settings.alarmeAntesMin);
+        
+        ICSGenerator.download(`retomar_${this.normalizeStr(this.getChanName(ch))}_${this.formatDateOnlyPT(resumeDate)}.ics`, icsContent);
+      }
+    },
+
+    cancelChannelPause(chanName) {
+      const ch = this.getChannelObj(chanName);
+      if (!ch) return;
+      ch.pausaAte = null;
+      this.saveState();
+      this.showToast(`Pausa do canal ${this.getChanName(ch)} cancelada.`);
+    },
+
+    // --- Navigation & Views ---
+    switchScreen(screenId) {
+      document.querySelectorAll('#pp-root .pp-screen').forEach(s => s.classList.remove('pp-active'));
+      const target = document.getElementById(screenId);
+      if (target) target.classList.add('pp-active');
+      const mainArea = document.querySelector('#pp-root .pp-main-area');
+      if (mainArea) mainArea.scrollTop = 0;
+
+      if (screenId === 'pp-screen-settings') {
+        this.renderSettings();
+      }
+    },
+
+    render() {
+      this.renderTabCounts();
+      this.renderChannelChips();
+      this.renderCards();
+      this.renderSidebarStats();
+    },
+
+    renderSidebarStats() {
+      const statsElem = document.getElementById('pp-sidebar-stats');
+      if (!statsElem) return;
+      const total = this.videos.length;
+      const pend = this.videos.filter(v => v.estado === 'pendente').length;
+      const agend = this.videos.filter(v => v.estado === 'agendado').length;
+      const pub = this.videos.filter(v => v.estado === 'publicado').length;
+
+      statsElem.innerHTML = `
+        <div>Total Fichas: <strong>${total}</strong></div>
+        <div>Pendentes: <span style="color:var(--pp-warning); font-weight:700;">${pend}</span></div>
+        <div>Agendados: <span style="color:var(--pp-primary); font-weight:700;">${agend}</span></div>
+        <div>Publicados: <span style="color:var(--pp-success); font-weight:700;">${pub}</span></div>
+      `;
+    },
+
+    renderTabCounts() {
+      const counts = { pendente: 0, agendado: 0, publicado: 0 };
+      this.videos.forEach(v => {
+        if (counts[v.estado] !== undefined) counts[v.estado]++;
+      });
+      document.getElementById('pp-cnt-pendente').textContent = counts.pendente;
+      document.getElementById('pp-cnt-agendado').textContent = counts.agendado;
+      document.getElementById('pp-cnt-publicado').textContent = counts.publicado;
+    },
+
+    renderChannelChips() {
+      const container = document.getElementById('pp-channels-chips');
+      container.innerHTML = '';
+
+      const pendingCounts = {};
+      this.videos.forEach(v => {
+        if (v.estado === 'pendente') {
+          const c = v.canal || "Sem canal";
+          pendingCounts[c] = (pendingCounts[c] || 0) + 1;
+        }
+      });
+
+      const totalPend = this.videos.filter(v => v.estado === 'pendente').length;
+      const allChip = document.createElement('button');
+      allChip.className = `pp-chip ${this.selectedChannel === 'ALL' ? 'pp-active' : ''}`;
+      allChip.innerHTML = `Todos (${totalPend})`;
+      allChip.onclick = () => { this.selectedChannel = 'ALL'; this.render(); };
+      container.appendChild(allChip);
+
+      this.channels.forEach(ch => {
+        const cName = this.getChanName(ch);
+        const cnt = pendingCounts[cName] || 0;
+        const uploadCount = this.getChannelUploadCount(cName);
+        const limit = this.getChannelLimit(cName);
+        const pct = (uploadCount / limit) * 100;
+        
+        let limitClass = 'pp-limit-green';
+        if (pct >= 100) limitClass = 'pp-limit-red';
+        else if (pct >= 70) limitClass = 'pp-limit-yellow';
+
+        let isPaused = ch.pausaAte && ch.pausaAte > Date.now();
+        let pauseText = '';
+        if (isPaused) {
+          const remainingMin = Math.ceil((ch.pausaAte - Date.now()) / 60000);
+          const hrs = Math.floor(remainingMin / 60);
+          const mins = remainingMin % 60;
+          pauseText = ` [⏸ ${hrs}h ${mins}m]`;
+        }
+
+        const chip = document.createElement('button');
+        chip.className = `pp-chip ${this.selectedChannel === cName ? 'pp-active' : ''}`;
+        chip.innerHTML = `
+          <span>${this.escapeHtml(cName)} (${cnt})</span>
+          <span class="pp-limit-badge ${limitClass}">${uploadCount}/${limit}${pauseText}</span>
+        `;
+        chip.onclick = () => { this.selectedChannel = cName; this.render(); };
+        container.appendChild(chip);
+      });
+    },
+
+    getFilteredVideos() {
+      let list = [...this.videos];
+
+      if (!this.searchQuery || !this.searchIncPub) {
+        list = list.filter(v => v.estado === this.currentTab);
+      }
+
+      if (this.selectedChannel !== 'ALL') {
+        list = list.filter(v => this.normalizeStr(v.canal) === this.normalizeStr(this.selectedChannel));
+      }
+
+      if (this.searchQuery) {
+        const q = this.normalizeStr(this.searchQuery);
+        list = list.filter(v => {
+          const t = this.normalizeStr(v.titulo);
+          const d = this.normalizeStr(v.descricao);
+          const tags = this.normalizeStr((v.tags || []).join(' '));
+          return t.includes(q) || d.includes(q) || tags.includes(q);
+        });
+      }
+
+      const sortMode = document.getElementById('pp-sort-select').value || this.settings.ordenacao;
+      if (sortMode === 'recent') {
+        list.sort((a, b) => b.criadoEm - a.criadoEm);
+      } else if (sortMode === 'oldest') {
+        list.sort((a, b) => a.criadoEm - b.criadoEm);
+      } else if (sortMode === 'alpha') {
+        list.sort((a, b) => a.titulo.localeCompare(b.titulo));
+      } else if (sortMode === 'agendamento') {
+        list.sort((a, b) => {
+          if (!a.agendarPara) return 1;
+          if (!b.agendarPara) return -1;
+          return new Date(a.agendarPara).getTime() - new Date(b.agendarPara).getTime();
+        });
+      }
+
+      return list;
+    },
+
+    highlightText(text, query) {
+      if (!text) return '';
+      const escapedFull = this.escapeHtml(text);
+      if (!query || !query.trim()) return escapedFull;
+      
+      const q = query.trim();
+      const normText = this.normalizeStr(text);
+      const normQ = this.normalizeStr(q);
+      const idx = normText.indexOf(normQ);
+      if (idx === -1) return escapedFull;
+
+      const matchChunk = text.substring(idx, idx + q.length);
+      const escapedMatch = this.escapeHtml(matchChunk);
+      
+      try {
+        const safePattern = escapedMatch.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(safePattern, 'gi');
+        return escapedFull.replace(regex, `<mark>$&</mark>`);
+      } catch (e) {
+        return escapedFull;
+      }
+    },
+
+    escapeHtml(str) {
+      return (str || '')
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    },
+
+    renderCards() {
+      const container = document.getElementById('pp-cards-container');
+      const emptyState = document.getElementById('pp-empty-state');
+      const iconHolder = document.getElementById('pp-view-icon-holder');
+      const viewToggleBtn = document.getElementById('pp-toggle-view');
+      container.innerHTML = '';
+
+      const gridSvg = `<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+        <rect x="3" y="3" width="5" height="5" rx="1.5"/>
+        <rect x="10.5" y="3" width="5" height="5" rx="1.5"/>
+        <rect x="18" y="3" width="5" height="5" rx="1.5"/>
+        <rect x="3" y="10.5" width="5" height="5" rx="1.5"/>
+        <rect x="10.5" y="10.5" width="5" height="5" rx="1.5"/>
+        <rect x="18" y="10.5" width="5" height="5" rx="1.5"/>
+        <rect x="3" y="18" width="5" height="5" rx="1.5"/>
+        <rect x="10.5" y="18" width="5" height="5" rx="1.5"/>
+        <rect x="18" y="18" width="5" height="5" rx="1.5"/>
+      </svg>`;
+
+      const listSvg = `<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+        <circle cx="4.5" cy="5.5" r="2.5"/>
+        <rect x="9.5" y="3.5" width="13" height="4" rx="2"/>
+        <circle cx="4.5" cy="12" r="2.5"/>
+        <rect x="9.5" y="10" width="13" height="4" rx="2"/>
+        <circle cx="4.5" cy="18.5" r="2.5"/>
+        <rect x="9.5" y="16.5" width="13" height="4" rx="2"/>
+      </svg>`;
+
+      if (this.settings.vista === 'grelha') {
+        container.classList.add('pp-view-grid');
+        iconHolder.innerHTML = listSvg;
+        viewToggleBtn.title = 'Mudar para vista de Lista';
+      } else {
+        container.classList.remove('pp-view-grid');
+        iconHolder.innerHTML = gridSvg;
+        viewToggleBtn.title = 'Mudar para vista de Grelha';
+      }
+
+      const filtered = this.getFilteredVideos();
+
+      if (filtered.length === 0) {
+        emptyState.style.display = 'block';
+        return;
+      }
+      emptyState.style.display = 'none';
+
+      const nowTime = Date.now();
+
+      filtered.forEach(v => {
+        const card = document.createElement('div');
+        card.className = `pp-card ${this.selectedIds.has(v.id) ? 'pp-selected' : ''}`;
+        
+        const statusClass = `pp-status-${v.estado}`;
+
+        let dateDisplay = '';
+        if (v.agendarPara) {
+          const isOverdue = v.estado === 'pendente' && new Date(v.agendarPara).getTime() < nowTime;
+          const formatted = this.formatDatePT(v.agendarPara);
+          dateDisplay = `<span class="${isOverdue ? 'pp-overdue-date' : ''}">📅 ${formatted}${isOverdue ? ' ⚠️ (EM ATRASO)' : ''}</span>`;
+        }
+
+        card.innerHTML = `
+          <div class="pp-card-header">
+            <span class="pp-card-channel">${this.escapeHtml(v.canal)}</span>
+            <span class="pp-status-tag ${statusClass}">${v.estado.toUpperCase()}</span>
+          </div>
+          <div class="pp-card-title">${this.highlightText(v.titulo, this.searchQuery)}</div>
+          <div class="pp-card-desc-preview">${this.highlightText(v.descricao.split('\n')[0], this.searchQuery)}</div>
+          <div class="pp-card-footer">
+            ${dateDisplay}
+            <button class="pp-btn pp-btn-icon pp-quick-pub" title="Marcar Publicado" style="min-height:32px; min-width:32px; padding:2px 6px; font-size:0.75rem;">
+              ${v.estado === 'publicado' ? '✓' : '🚀'}
+            </button>
+          </div>
+        `;
+
+        let timer = null;
+        card.addEventListener('click', (e) => {
+          if (e.target.closest('.pp-quick-pub')) {
+            e.stopPropagation();
+            this.toggleQuickPublish(v);
+            return;
+          }
+
+          if (this.isSelectMode) {
+            this.toggleSelectCard(v.id);
+          } else {
+            this.openDetail(v.id);
+          }
+        });
+
+        card.addEventListener('touchstart', () => {
+          timer = setTimeout(() => {
+            this.isSelectMode = true;
+            this.toggleSelectCard(v.id);
+            this.updateBulkBar();
+          }, 600);
+        }, { passive: true });
+
+        card.addEventListener('touchend', () => clearTimeout(timer));
+        card.addEventListener('touchmove', () => clearTimeout(timer));
+
+        container.appendChild(card);
+      });
+
+      this.updateBulkBar();
+    },
+
+    toggleQuickPublish(video) {
+      const oldState = video.estado;
+      video.estado = oldState === 'publicado' ? 'pendente' : 'publicado';
+      video.publicadoEm = video.estado === 'publicado' ? Date.now() : null;
+      video.atualizadoEm = Date.now();
+      this.saveState();
+      if (this.currentDetailId === video.id) {
+        this.renderDetail();
+      }
+      this.showToast(`Vídeo marcado como ${video.estado}`, () => {
+        video.estado = oldState;
+        this.saveState();
+        if (this.currentDetailId === video.id) {
+          this.renderDetail();
+        }
+      });
+    },
+
+    toggleSelectCard(id) {
+      if (this.selectedIds.has(id)) {
+        this.selectedIds.delete(id);
+      } else {
+        this.selectedIds.add(id);
+      }
+      this.renderCards();
+    },
+
+    updateBulkBar() {
+      const bar = document.getElementById('pp-bulk-bar');
+      const countLabel = document.getElementById('pp-bulk-count');
+      if (this.isSelectMode || this.selectedIds.size > 0) {
+        bar.style.display = 'flex';
+        countLabel.textContent = `${this.selectedIds.size} sel.`;
+      } else {
+        bar.style.display = 'none';
+      }
+    },
+
+    // --- Detail View Logic ---
+    openDetail(id) {
+      this.currentDetailId = id;
+      this.detailList = this.getFilteredVideos().map(v => v.id);
+      this.copiedSessionBlocks.clear();
+      this.copySeqStep = 1;
+      this.renderDetail();
+      this.switchScreen('pp-screen-detail');
+    },
+
+    renderDetail() {
+      const video = this.videos.find(v => v.id === this.currentDetailId);
+      if (!video) return;
+
+      if (!this.detailList || this.detailList.length === 0) {
+        this.detailList = this.getFilteredVideos().map(v => v.id);
+      }
+
+      const currentIdx = this.detailList.indexOf(this.currentDetailId);
+      const prevBtn = document.getElementById('pp-detail-prev');
+      const nextBtn = document.getElementById('pp-detail-next');
+
+      prevBtn.disabled = (currentIdx <= 0);
+      prevBtn.style.opacity = (currentIdx <= 0) ? '0.4' : '1';
+
+      nextBtn.disabled = (currentIdx === -1 || currentIdx >= this.detailList.length - 1);
+      nextBtn.style.opacity = (currentIdx === -1 || currentIdx >= this.detailList.length - 1) ? '0.4' : '1';
+
+      document.getElementById('pp-detail-channel').textContent = video.canal;
+      
+      const statusTag = document.getElementById('pp-detail-status');
+      statusTag.textContent = video.estado.toUpperCase();
+      statusTag.className = `pp-status-tag pp-status-${video.estado}`;
+
+      document.getElementById('pp-detail-date').value = video.agendarPara || '';
+
+      const titleBox = document.getElementById('pp-val-title');
+      titleBox.textContent = video.titulo;
+      this.updateCharCounter('pp-cnt-title', video.titulo.length, 100);
+      this.updateBlockCopyState('pp-block-title', 'title');
+
+      const descBox = document.getElementById('pp-val-desc');
+      descBox.textContent = video.descricao;
+      this.updateCharCounter('pp-cnt-desc', video.descricao.length, 5000);
+      this.updateBlockCopyState('pp-block-desc', 'desc');
+
+      const tagsStr = (video.tags || []).join(', ');
+      const tagsBox = document.getElementById('pp-val-tags');
+      tagsBox.textContent = tagsStr;
+      this.updateCharCounter('pp-cnt-tags', tagsStr.length, 500);
+      this.updateBlockCopyState('pp-block-tags', 'tags');
+
+      this.updateSequentialCopyButton();
+    },
+
+    updateSequentialCopyButton() {
+      const seqBtn = document.getElementById('pp-btn-copy-seq');
+      if (this.copySeqStep === 1) {
+        seqBtn.textContent = '⚡ Copiar Tags (1/3)';
+        seqBtn.className = 'pp-btn pp-btn-warning';
+      } else if (this.copySeqStep === 2) {
+        seqBtn.textContent = '⚡ Copiar Descrição (2/3)';
+        seqBtn.className = 'pp-btn pp-btn-primary';
+      } else if (this.copySeqStep === 3) {
+        seqBtn.textContent = '⚡ Copiar Título (3/3)';
+        seqBtn.className = 'pp-btn pp-btn-primary';
+      } else {
+        seqBtn.textContent = '✓ Tudo Copiado (Reiniciar)';
+        seqBtn.className = 'pp-btn pp-btn-success';
+      }
+    },
+
+    handleSequentialCopy() {
+      const video = this.videos.find(v => v.id === this.currentDetailId);
+      if (!video) return;
+
+      if (this.copySeqStep === 1) {
+        const val = (video.tags || []).join(', ');
+        const btn = document.querySelector('.pp-copy-btn[data-target="tags"]');
+        this.copyToClipboard(val, 'tags', btn, "Tags copiadas (1/3)! ✓");
+        this.copySeqStep = 2;
+      } else if (this.copySeqStep === 2) {
+        const val = video.descricao;
+        const btn = document.querySelector('.pp-copy-btn[data-target="desc"]');
+        this.copyToClipboard(val, 'desc', btn, "Descrição copiada (2/3)! ✓");
+        this.copySeqStep = 3;
+      } else if (this.copySeqStep === 3) {
+        const val = video.titulo;
+        const btn = document.querySelector('.pp-copy-btn[data-target="title"]');
+        this.copyToClipboard(val, 'title', btn, "Título copiado (3/3)! ✓");
+        this.copySeqStep = 4;
+      } else {
+        this.copySeqStep = 1;
+        this.showToast("Sequência reiniciada. Pronto para copiar Tags.");
+      }
+
+      this.updateSequentialCopyButton();
+    },
+
+    updateCharCounter(elemId, current, limit) {
+      const elem = document.getElementById(elemId);
+      if (!elem) return;
+      elem.textContent = `${current}/${limit}`;
+      if (current > limit) {
+        elem.classList.add('pp-over-limit');
+      } else {
+        elem.classList.remove('pp-over-limit');
+      }
+    },
+
+    updateBlockCopyState(blockElemId, key) {
+      const block = document.getElementById(blockElemId);
+      if (!block) return;
+      if (this.copiedSessionBlocks.has(key)) {
+        block.classList.add('pp-copied');
+      } else {
+        block.classList.remove('pp-copied');
+      }
+    },
+
+    async copyToClipboard(text, key, btnElem, customToastMsg = null) {
+      let success = false;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        try {
+          await navigator.clipboard.writeText(text);
+          success = true;
+        } catch (e) {}
+      }
+      if (!success) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        try {
+          document.execCommand('copy');
+          success = true;
+        } catch (e) {}
+        document.body.removeChild(ta);
+      }
+
+      if (success) {
+        this.copiedSessionBlocks.add(key);
+        this.renderDetail();
+        
+        if (btnElem) {
+          const origText = btnElem.dataset.origText || btnElem.textContent;
+          btnElem.dataset.origText = origText;
+          btnElem.textContent = "Copiado ✓";
+          btnElem.classList.remove('pp-btn-primary');
+          btnElem.classList.add('pp-btn-success');
+
+          setTimeout(() => {
+            btnElem.textContent = origText;
+            btnElem.classList.remove('pp-btn-success');
+            btnElem.classList.add('pp-btn-primary');
+          }, 1500);
+        }
+
+        this.showToast(customToastMsg || "Copiado para a área de transferência!");
+      }
+    },
+
+    navigateDetail(dir) {
+      if (!this.detailList || this.detailList.length === 0) {
+        this.detailList = this.getFilteredVideos().map(v => v.id);
+      }
+      const idx = this.detailList.indexOf(this.currentDetailId);
+      if (idx === -1) return;
+      const nextIdx = idx + dir;
+      if (nextIdx >= 0 && nextIdx < this.detailList.length) {
+        this.openDetail(this.detailList[nextIdx]);
+      }
+    },
+
+    async markVideoScheduled(video) {
+      const count = this.getChannelUploadCount(video.canal);
+      const limit = this.getChannelLimit(video.canal);
+
+      if (count >= limit) {
+        const confirmed = await CustomDialog.confirmDelete(
+          "Limite de Uploads",
+          `Atenção: O canal "${video.canal}" já tem ${count} de ${limit} uploads nas últimas 24h.\nDeseja marcar como agendado mesmo assim?`,
+          "Marcar mesmo assim"
+        );
+        if (!confirmed) return;
+      }
+
+      if (!video.agendarPara) {
+        const dateInput = document.getElementById('pp-detail-date').value;
+        if (dateInput) {
+          video.agendarPara = dateInput;
+        }
+      }
+
+      video.estado = 'agendado';
+      video.enviadoEm = Date.now();
+      video.atualizadoEm = Date.now();
+      this.saveState();
+      this.renderDetail();
+      this.showToast(`Vídeo marcado como agendado! (${count + 1}/${limit} hoje)`);
+    },
+
+    exportSingleVideoICS(video) {
+      if (!video.agendarPara) {
+        alert("Esta ficha não tem data/hora de agendamento definida.");
+        return;
+      }
+
+      const eventDate = new Date(video.agendarPara);
+      const icsContent = ICSGenerator.createICS([{
+        id: video.id,
+        title: `Agendar/publicar: ${video.titulo}`,
+        description: `Canal: ${video.canal}\n\nDescrição:\n${video.descricao}\n\nTags: ${(video.tags||[]).join(', ')}`,
+        start: eventDate,
+        durationMin: 15
+      }], this.settings.alarmeAntesMin);
+
+      const filename = `lembrete_${this.normalizeStr(video.canal)}_${this.formatDateOnlyPT(eventDate)}.ics`;
+      ICSGenerator.download(filename, icsContent);
+      this.showToast("Ficheiro .ics descarregado!");
+    },
+
+    exportChannelPendingICS(chanName) {
+      const pendingWithDate = this.videos.filter(v => {
+        return this.normalizeStr(v.canal) === this.normalizeStr(chanName) && v.agendarPara && v.estado !== 'publicado';
+      });
+
+      if (pendingWithDate.length === 0) {
+        alert(`O canal "${chanName}" não tem vídeos com data/hora de agendamento.`);
+        return;
+      }
+
+      const events = pendingWithDate.map(v => ({
+        id: v.id,
+        title: `Agendar/publicar: ${v.titulo}`,
+        description: `Canal: ${v.canal}\n\n${v.descricao}`,
+        start: new Date(v.agendarPara),
+        durationMin: 15
+      }));
+
+      const icsContent = ICSGenerator.createICS(events, this.settings.alarmeAntesMin);
+      ICSGenerator.download(`agenda_${this.normalizeStr(chanName)}.ics`, icsContent);
+      this.showToast(`${events.length} agendamento(s) exportado(s) num único .ics!`);
+    },
+
+    // --- Parser Preview Screen ---
+    analyzeImportJson() {
+      const ta = document.getElementById('pp-import-textarea');
+      const text = ta.value;
+      const parsedResults = Parser.parseBatch(text);
+
+      if (parsedResults.length === 0) {
+        this.showToast("Nenhum bloco JSON válido encontrado.");
+        return;
+      }
+
+      ta.disabled = true;
+      ta.blur();
+
+      this.parseResultsCache = [];
+      const validItems = [];
+      const errorItems = [];
+
+      parsedResults.forEach(res => {
+        if (!res.success) {
+          errorItems.push(res);
+        } else {
+          const normTitle = this.normalizeStr(res.data.titulo);
+          const normChan = this.normalizeStr(res.data.canal);
+          const duplicate = this.videos.find(v => 
+            this.normalizeStr(v.titulo) === normTitle && 
+            this.normalizeStr(v.canal) === normChan
+          );
+
+          res.duplicateOf = duplicate ? duplicate.id : null;
+          res.duplicateAction = duplicate ? 'ignore' : 'create';
+          validItems.push(res);
+        }
+      });
+
+      this.parseResultsCache = validItems;
+
+      const summaryElem = document.getElementById('pp-parse-summary');
+      summaryElem.textContent = `Encontrei ${parsedResults.length} vídeos (${validItems.length} válidos, ${errorItems.length} com erro).`;
+
+      const listElem = document.getElementById('pp-parse-list');
+      listElem.innerHTML = '';
+
+      validItems.forEach((item, idx) => {
+        const div = document.createElement('div');
+        div.className = `pp-preview-item ${item.duplicateOf ? 'pp-duplicate' : ''}`;
+
+        let dupControls = '';
+        if (item.duplicateOf) {
+          dupControls = `
+            <div style="margin-top:4px; font-size:0.8rem; color:var(--pp-warning);">
+              ⚠️ Duplicado detetado. Ação: 
+              <select data-idx="${idx}" class="pp-select pp-dup-select" style="min-height:30px; padding:2px; font-size:0.8rem; width:auto; display:inline-block;">
+                <option value="ignore">Ignorar</option>
+                <option value="create">Criar mesmo assim</option>
+                <option value="replace">Substituir existente</option>
+              </select>
+            </div>
+          `;
+        }
+
+        let warnMsg = item.warning ? `<div style="color:var(--pp-warning); font-size:0.75rem;">⚠️ ${item.warning}</div>` : '';
+
+        div.innerHTML = `
+          <div><strong>#${item.index} [${this.escapeHtml(item.data.canal)}]</strong> ${this.escapeHtml(item.data.titulo)}</div>
+          <div style="font-size:0.75rem; color:var(--pp-text-muted);">
+            Tags: ${item.data.tags.length} | Desc: ${item.data.descricao.length} chars ${item.data.agendarPara ? '| 📅 ' + item.data.agendarPara : ''}
+          </div>
+          ${warnMsg}
+          ${dupControls}
+        `;
+        listElem.appendChild(div);
+      });
+
+      errorItems.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'pp-preview-item pp-error';
+        div.innerHTML = `
+          <div style="color:var(--pp-danger);"><strong>#${item.index} Erro:</strong> ${this.escapeHtml(item.error)}</div>
+        `;
+        listElem.appendChild(div);
+      });
+
+      document.getElementById('pp-parse-results').style.display = 'block';
+
+      document.querySelectorAll('.pp-dup-select').forEach(sel => {
+        sel.onchange = (e) => {
+          const index = parseInt(e.target.dataset.idx, 10);
+          this.parseResultsCache[index].duplicateAction = e.target.value;
+        };
+      });
+    },
+
+    saveParsedBatch() {
+      const now = Date.now();
+      let createdCount = 0;
+      let replacedCount = 0;
+
+      this.parseResultsCache.forEach((item, i) => {
+        if (!item.success) return;
+
+        const action = item.duplicateAction;
+        if (action === 'ignore') return;
+
+        if (item.data.canal && !this.channels.some(c => this.normalizeStr(this.getChanName(c)) === this.normalizeStr(item.data.canal))) {
+          this.channels.push({
+            nome: item.data.canal.trim(),
+            limiteDiario: null,
+            pausaAte: null,
+            adiarAte: null
+          });
+        }
+
+        if (action === 'replace' && item.duplicateOf) {
+          const existingIdx = this.videos.findIndex(v => v.id === item.duplicateOf);
+          if (existingIdx !== -1) {
+            this.videos[existingIdx] = {
+              ...this.videos[existingIdx],
+              canal: item.data.canal,
+              titulo: item.data.titulo,
+              descricao: item.data.descricao,
+              tags: item.data.tags,
+              agendarPara: item.data.agendarPara || this.videos[existingIdx].agendarPara,
+              atualizadoEm: now
+            };
+            replacedCount++;
+          }
+        } else {
+          const newVid = {
+            id: this.generateId(),
+            canal: item.data.canal,
+            titulo: item.data.titulo,
+            descricao: item.data.descricao,
+            tags: item.data.tags,
+            estado: 'pendente',
+            agendarPara: item.data.agendarPara || null,
+            enviadoEm: null,
+            criadoEm: now + (this.parseResultsCache.length - i),
+            atualizadoEm: now,
+            publicadoEm: null
+          };
+          this.videos.unshift(newVid);
+          createdCount++;
+        }
+      });
+
+      this.saveState();
+      this.showToast(`Gravado: ${createdCount} criados, ${replacedCount} substituídos.`);
+      const ta = document.getElementById('pp-import-textarea');
+      ta.value = '';
+      ta.disabled = false;
+      document.getElementById('pp-parse-results').style.display = 'none';
+      this.switchScreen('pp-screen-list');
+    },
+
+    // --- Form Edit/Create Manual ---
+    openEditForm(videoId = null) {
+      const form = document.getElementById('pp-edit-form');
+      form.reset();
+
+      const sel = document.getElementById('pp-edit-channel-select');
+      sel.innerHTML = '<option value="">-- Escolher Existente --</option>';
+      this.channels.forEach(ch => {
+        const cName = this.getChanName(ch);
+        const opt = document.createElement('option');
+        opt.value = cName;
+        opt.textContent = cName;
+        sel.appendChild(opt);
+      });
+
+      if (videoId) {
+        document.getElementById('pp-edit-heading').textContent = 'Editar Vídeo';
+        const v = this.videos.find(x => x.id === videoId);
+        if (v) {
+          document.getElementById('pp-edit-id').value = v.id;
+          sel.value = v.canal;
+          document.getElementById('pp-edit-title').value = v.titulo;
+          document.getElementById('pp-edit-desc').value = v.descricao;
+          document.getElementById('pp-edit-tags').value = (v.tags || []).join(', ');
+          document.getElementById('pp-edit-status').value = v.estado;
+          document.getElementById('pp-edit-date').value = v.agendarPara || '';
+        }
+      } else {
+        document.getElementById('pp-edit-heading').textContent = 'Novo Vídeo';
+        document.getElementById('pp-edit-id').value = '';
+      }
+
+      this.updateFormCounters();
+      this.switchScreen('pp-screen-edit');
+    },
+
+    saveForm(e) {
+      e.preventDefault();
+      const id = document.getElementById('pp-edit-id').value;
+      const title = document.getElementById('pp-edit-title').value.trim();
+      const desc = document.getElementById('pp-edit-desc').value;
+      const rawTags = document.getElementById('pp-edit-tags').value;
+      const status = document.getElementById('pp-edit-status').value;
+      const dateVal = document.getElementById('pp-edit-date').value || null;
+
+      const selChan = document.getElementById('pp-edit-channel-select').value;
+      const newChan = document.getElementById('pp-edit-channel-new').value.trim();
+      let finalChan = newChan || selChan || "Sem canal";
+
+      if (finalChan && !this.channels.some(c => this.normalizeStr(this.getChanName(c)) === this.normalizeStr(finalChan))) {
+        this.channels.push({
+          nome: finalChan,
+          limiteDiario: null,
+          pausaAte: null,
+          adiarAte: null
+        });
+      }
+
+      const normTags = [...new Set(rawTags.split(',').map(t => t.trim()).filter(Boolean))];
+      const now = Date.now();
+
+      if (id) {
+        const v = this.videos.find(x => x.id === id);
+        if (v) {
+          v.canal = finalChan;
+          v.titulo = title;
+          v.descricao = desc;
+          v.tags = normTags;
+          v.estado = status;
+          v.agendarPara = dateVal;
+          v.atualizadoEm = now;
+          if (status === 'agendado' && !v.enviadoEm) v.enviadoEm = now;
+          if (status === 'publicado' && !v.publicadoEm) v.publicadoEm = now;
+        }
+      } else {
+        const newVid = {
+          id: this.generateId(),
+          canal: finalChan,
+          titulo: title,
+          descricao: desc,
+          tags: normTags,
+          estado: status,
+          agendarPara: dateVal,
+          enviadoEm: status === 'agendado' ? now : null,
+          criadoEm: now,
+          atualizadoEm: now,
+          publicadoEm: status === 'publicado' ? now : null
+        };
+        this.videos.unshift(newVid);
+      }
+
+      this.saveState();
+      this.showToast("Ficha guardada com sucesso!");
+      this.switchScreen('pp-screen-list');
+    },
+
+    updateFormCounters() {
+      const t = document.getElementById('pp-edit-title').value || '';
+      const d = document.getElementById('pp-edit-desc').value || '';
+      const g = document.getElementById('pp-edit-tags').value || '';
+      this.updateCharCounter('pp-form-cnt-title', t.length, 100);
+      this.updateCharCounter('pp-form-cnt-desc', d.length, 5000);
+      this.updateCharCounter('pp-form-cnt-tags', g.length, 500);
+    },
+
+    // --- Settings & Channels Screen Render ---
+    renderSettings() {
+      document.getElementById('pp-set-limite-global').value = this.settings.limiteDiarioGlobal;
+      document.getElementById('pp-set-modo-contagem').value = this.settings.modoContagem;
+      document.getElementById('pp-set-horas-pausa').value = this.settings.horasPausaLimite;
+      document.getElementById('pp-set-intervalo-popup').value = this.settings.intervaloPopupMin;
+      document.getElementById('pp-set-antecedencia-aviso').value = this.settings.antecedenciaAvisoMin;
+      document.getElementById('pp-set-auto-publicar').value = this.settings.autoPublicar;
+      document.getElementById('pp-set-alarme-antes').value = this.settings.alarmeAntesMin;
+
+      const container = document.getElementById('pp-channels-list-settings');
+      container.innerHTML = '';
+
+      this.channels.forEach(ch => {
+        const cName = this.getChanName(ch);
+        const row = document.createElement('div');
+        row.style.cssText = 'background:var(--pp-bg-input); padding:10px; border-radius:8px; display:flex; flex-direction:column; gap:8px;';
+        
+        const isPaused = ch.pausaAte && ch.pausaAte > Date.now();
+        const limitVal = ch.limiteDiario !== null && ch.limiteDiario !== undefined ? ch.limiteDiario : '';
+
+        row.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong style="font-size:0.95rem;">${this.escapeHtml(cName)}</strong>
+            <div style="display:flex; gap:6px;">
+              <button class="pp-btn pp-rename-chan" style="min-height:32px; padding:2px 10px; font-size:0.75rem;">✎ Renomear</button>
+              <button class="pp-btn pp-btn-danger pp-del-chan" style="min-height:32px; padding:2px 10px; font-size:0.75rem;">✕ Apagar</button>
+            </div>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+            <div style="display:flex; align-items:center; gap:4px;">
+              <label style="font-size:0.8rem;">Limite Próprio:</label>
+              <input type="number" class="pp-input pp-chan-limit" value="${limitVal}" placeholder="Global (${this.settings.limiteDiarioGlobal})" style="width:100px; min-height:32px; padding:4px;">
+            </div>
+            <button class="pp-btn pp-btn-warning pp-chan-ics-all" style="min-height:32px; padding:2px 8px; font-size:0.75rem;">📅 ICS Pendentes</button>
+            ${isPaused ? 
+              `<button class="pp-btn pp-btn-success pp-cancel-pause" style="min-height:32px; padding:2px 8px; font-size:0.75rem;">▶ Cancelar Pausa</button>` : 
+              `<button class="pp-btn pp-btn-warning pp-trigger-pause" style="min-height:32px; padding:2px 8px; font-size:0.75rem;">⏸ Atingi o Limite</button>`}
+          </div>
+        `;
+
+        row.querySelector('.pp-rename-chan').onclick = () => this.renameChannel(cName);
+        row.querySelector('.pp-del-chan').onclick = () => this.deleteChannel(cName);
+        row.querySelector('.pp-chan-ics-all').onclick = () => this.exportChannelPendingICS(cName);
+        
+        const limitInput = row.querySelector('.pp-chan-limit');
+        limitInput.onchange = (e) => {
+          const val = e.target.value.trim();
+          ch.limiteDiario = val !== '' ? parseInt(val, 10) : null;
+          this.saveState();
+          this.showToast(`Limite do canal ${cName} atualizado.`);
+        };
+
+        if (isPaused) {
+          row.querySelector('.pp-cancel-pause').onclick = () => {
+            this.cancelChannelPause(cName);
+            this.renderSettings();
+          };
+        } else {
+          row.querySelector('.pp-trigger-pause').onclick = () => {
+            this.setChannelLimitPause(cName);
+            this.renderSettings();
+          };
+        }
+
+        container.appendChild(row);
+      });
+
+      const backupInfo = document.getElementById('pp-backup-info');
+      const lastDate = this.settings.ultimoBackup ? new Date(this.settings.ultimoBackup).toLocaleDateString('pt-PT') : 'Nunca';
+      backupInfo.textContent = `Total: ${this.videos.length} fichas | Último backup: ${lastDate}`;
+    },
+
+    saveGlobalSettingsFromUI() {
+      this.settings.limiteDiarioGlobal = parseInt(document.getElementById('pp-set-limite-global').value, 10) || 10;
+      this.settings.modoContagem = document.getElementById('pp-set-modo-contagem').value;
+      this.settings.horasPausaLimite = parseInt(document.getElementById('pp-set-horas-pausa').value, 10) || 25;
+      this.settings.intervaloPopupMin = parseInt(document.getElementById('pp-set-intervalo-popup').value, 10) || 60;
+      this.settings.antecedenciaAvisoMin = parseInt(document.getElementById('pp-set-antecedencia-aviso').value, 10) || 120;
+      this.settings.autoPublicar = document.getElementById('pp-set-auto-publicar').value;
+      this.settings.alarmeAntesMin = parseInt(document.getElementById('pp-set-alarme-antes').value, 10) || 30;
+
+      this.saveState();
+      this.showToast("Opções globais guardadas!");
+    },
+
+    async renameChannel(oldName) {
+      const newName = await CustomDialog.prompt(
+        "Renomear Canal",
+        "Novo nome do canal",
+        oldName,
+        "Use um nome claro para identificar o canal"
+      );
+
+      if (!newName || !newName.trim() || newName.trim() === oldName) return;
+      const cleanNew = newName.trim();
+
+      const ch = this.getChannelObj(oldName);
+      if (ch) ch.nome = cleanNew;
+
+      this.videos.forEach(v => {
+        if (this.normalizeStr(v.canal) === this.normalizeStr(oldName)) {
+          v.canal = cleanNew;
+        }
+      });
+
+      this.saveState();
+      this.showToast("Canal renomeado!");
+      this.renderSettings();
+    },
+
+    async deleteChannel(chanName) {
+      const count = this.videos.filter(v => this.normalizeStr(v.canal) === this.normalizeStr(chanName)).length;
+      
+      const confirmMsg = count > 0 
+        ? `${chanName} e ${count} vídeos associados serão afetados.`
+        : `O canal ${chanName} será removido permanentemente.`;
+
+      const confirmed = await CustomDialog.confirmDelete("Apagar?", confirmMsg, "Apagar tudo");
+      if (!confirmed) return;
+
+      if (count > 0) {
+        this.videos.forEach(v => {
+          if (this.normalizeStr(v.canal) === this.normalizeStr(chanName)) {
+            v.canal = "Sem canal";
+          }
+        });
+        if (!this.channels.some(c => this.normalizeStr(this.getChanName(c)) === 'sem canal')) {
+          this.channels.push({ nome: 'Sem canal', limiteDiario: null, pausaAte: null, adiarAte: null });
+        }
+      }
+
+      this.channels = this.channels.filter(c => this.normalizeStr(this.getChanName(c)) !== this.normalizeStr(chanName));
+      this.saveState();
+      this.showToast("Canal removido.");
+      this.renderSettings();
+    },
+
+    async resetAllData() {
+      const confirmed = await CustomDialog.confirmDelete(
+        "Apagar Todos os Dados?",
+        "Atenção: Todos os vídeos, canais e definições serão apagados permanentemente.",
+        "Apagar Tudo"
+      );
+
+      if (!confirmed) return;
+
+      await Storage.clearAll();
+      this.videos = [];
+      this.channels = [];
+      this.settings.ultimoBackup = null;
+      this.saveState();
+      this.showToast("Todos os dados foram apagados.");
+      this.renderSettings();
+    },
+
+    // --- Auto Publish Check ---
+    checkAutoPublish() {
+      if (this.settings.autoPublicar === 'nunca') return;
+
+      const nowTime = Date.now();
+      const overdueAgendados = this.videos.filter(v => {
+        return v.estado === 'agendado' && v.agendarPara && new Date(v.agendarPara).getTime() <= nowTime;
+      });
+
+      if (overdueAgendados.length === 0) return;
+
+      if (this.settings.autoPublicar === 'automatico') {
+        overdueAgendados.forEach(v => {
+          v.estado = 'publicado';
+          v.publicadoEm = new Date(v.agendarPara).getTime();
+          v.atualizadoEm = nowTime;
+        });
+        this.saveState();
+        this.showToast(`${overdueAgendados.length} vídeo(s) agendado(s) passaram a publicado(s) automático!`);
+      }
+    },
+
+    // --- Lembretes Pop-up ---
+    checkLembretesPopup(forceShow = false) {
+      const nowTime = Date.now();
+      const intervalMs = (parseInt(this.settings.intervaloPopupMin, 10) || 60) * 60000;
+      const last = this.settings.ultimoPopup || 0;
+
+      if (!forceShow && (nowTime - last < intervalMs)) {
+        return;
+      }
+
+      const activeChannels = this.channels.filter(ch => {
+        const paused = ch.pausaAte && ch.pausaAte > nowTime;
+        const deferred = ch.adiarAte && ch.adiarAte > nowTime;
+        return !paused && !deferred;
+      });
+
+      const pendingMap = {};
+      activeChannels.forEach(ch => {
+        const cName = this.getChanName(ch);
+        const norm = this.normalizeStr(cName);
+        const count = this.videos.filter(v => v.estado === 'pendente' && this.normalizeStr(v.canal) === norm).length;
+        if (count > 0) {
+          pendingMap[cName] = count;
+        }
+      });
+
+      const warningMinMs = (parseInt(this.settings.antecedenciaAvisoMin, 10) || 120) * 60000;
+      const urgentVideos = this.videos.filter(v => {
+        if (v.estado !== 'pendente' || !v.agendarPara) return false;
+        const schedTime = new Date(v.agendarPara).getTime();
+        return (schedTime - nowTime) <= warningMinMs;
+      });
+
+      const overdueScheduled = (this.settings.autoPublicar === 'perguntar') ? 
+        this.videos.filter(v => v.estado === 'agendado' && v.agendarPara && new Date(v.agendarPara).getTime() <= nowTime) : [];
+
+      const hasContent = Object.keys(pendingMap).length > 0 || urgentVideos.length > 0 || overdueScheduled.length > 0;
+
+      if (!hasContent && !forceShow) return;
+
+      this.settings.ultimoPopup = nowTime;
+      Storage.saveSetting('global_settings', this.settings);
+
+      this.showLembretesModal(pendingMap, urgentVideos, overdueScheduled);
+    },
+
+    showLembretesModal(pendingMap, urgentVideos, overdueScheduled) {
+      const modal = document.getElementById('pp-reminder-modal');
+      const body = document.getElementById('pp-modal-body-content');
+      body.innerHTML = '';
+
+      if (Object.keys(pendingMap).length === 0 && urgentVideos.length === 0 && overdueScheduled.length === 0) {
+        body.innerHTML = `<p style="text-align:center; color:var(--pp-text-muted); padding:20px 0;">Não há lembretes pendentes de momento. 👍</p>`;
+        modal.style.display = 'flex';
+        return;
+      }
+
+      if (overdueScheduled.length > 0) {
+        const sec = document.createElement('div');
+        sec.innerHTML = `<div class="pp-reminder-section-title" style="color:#ef4444;">🚀 Vídeos Agendados Prontos a Publicar (${overdueScheduled.length})</div>`;
+        
+        overdueScheduled.forEach(v => {
+          const card = document.createElement('div');
+          card.className = 'pp-reminder-card';
+          card.innerHTML = `
+            <div class="pp-reminder-card-left">
+              <div class="pp-reminder-play-icon" style="background:rgba(239, 68, 68, 0.2); color:#ef4444;">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                  <path d="M8 5v14l11-7z"/>
+                </svg>
+              </div>
+              <div class="pp-reminder-card-info">
+                <div class="pp-reminder-card-title">[${this.escapeHtml(v.canal)}] ${this.escapeHtml(v.titulo)}</div>
+                <div class="pp-reminder-card-sub">Agendado · Pronto para Publicar</div>
+              </div>
+            </div>
+            <button class="pp-reminder-action-btn pp-pop-pub" style="background:#22c55e;">Publicar</button>
+          `;
+          card.querySelector('.pp-pop-pub').onclick = () => {
+            v.estado = 'publicado';
+            v.publicadoEm = Date.now();
+            this.saveState();
+            card.remove();
+            this.showToast("Vídeo publicado!");
+          };
+          sec.appendChild(card);
+        });
+        body.appendChild(sec);
+      }
+
+      if (urgentVideos.length > 0) {
+        const sec = document.createElement('div');
+        sec.innerHTML = `<div class="pp-reminder-section-title">⏰ Vídeos Pendentes a Exigir Atenção (${urgentVideos.length})</div>`;
+        
+        urgentVideos.forEach(v => {
+          const formattedDate = this.formatDatePT(v.agendarPara);
+          const card = document.createElement('div');
+          card.className = 'pp-reminder-card';
+          card.innerHTML = `
+            <div class="pp-reminder-card-left">
+              <div class="pp-reminder-play-icon">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                  <path d="M8 5v14l11-7z"/>
+                </svg>
+              </div>
+              <div class="pp-reminder-card-info">
+                <div class="pp-reminder-card-title">[${this.escapeHtml(v.canal)}] ${this.escapeHtml(v.titulo)}</div>
+                <div class="pp-reminder-card-sub">Hora: ${formattedDate} · Pendente</div>
+              </div>
+            </div>
+            <button class="pp-reminder-action-btn pp-pop-open">Abrir</button>
+          `;
+          card.querySelector('.pp-pop-open').onclick = () => {
+            modal.style.display = 'none';
+            this.openDetail(v.id);
+          };
+          sec.appendChild(card);
+        });
+        body.appendChild(sec);
+      }
+
+      if (Object.keys(pendingMap).length > 0) {
+        const sec = document.createElement('div');
+        sec.innerHTML = `<div class="pp-reminder-section-title" style="color:#3b82f6;">📁 Canais com Vídeos Pendentes</div>`;
+
+        Object.keys(pendingMap).forEach(chanName => {
+          const count = pendingMap[chanName];
+          const uploadCount = this.getChannelUploadCount(chanName);
+          const limit = this.getChannelLimit(chanName);
+          const chObj = this.getChannelObj(chanName);
+
+          const card = document.createElement('div');
+          card.className = 'pp-reminder-card';
+          card.style.flexDirection = 'column';
+          card.style.alignItems = 'stretch';
+          card.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div style="font-weight:700; color:#fff; font-size:0.92rem;">${this.escapeHtml(chanName)} (${count} pendentes)</div>
+              <span class="pp-limit-badge ${uploadCount>=limit?'pp-limit-red':'pp-limit-green'}">${uploadCount}/${limit} hoje</span>
+            </div>
+            <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;">
+              <button class="pp-reminder-action-btn pp-pop-open" style="padding:6px 14px; font-size:0.8rem;">Abrir Canal</button>
+              <button class="pp-btn pp-pop-defer-1" style="min-height:34px; padding:4px 10px; font-size:0.78rem;">Adiar 1h</button>
+              <button class="pp-btn pp-pop-defer-25" style="min-height:34px; padding:4px 10px; font-size:0.78rem;">Adiar 25h</button>
+              <button class="pp-btn pp-btn-warning pp-pop-limit" style="min-height:34px; padding:4px 10px; font-size:0.78rem;">Atingi o Limite</button>
+            </div>
+          `;
+
+          card.querySelector('.pp-pop-open').onclick = () => {
+            modal.style.display = 'none';
+            this.selectedChannel = chanName;
+            this.currentTab = 'pendente';
+            this.render();
+            this.switchScreen('pp-screen-list');
+          };
+
+          card.querySelector('.pp-pop-defer-1').onclick = () => {
+            if (chObj) chObj.adiarAte = Date.now() + 3600000;
+            this.saveState();
+            card.remove();
+            this.showToast(`Lembrete de ${chanName} adiado por 1h.`);
+          };
+
+          card.querySelector('.pp-pop-defer-25').onclick = () => {
+            if (chObj) chObj.adiarAte = Date.now() + (25 * 3600000);
+            this.saveState();
+            card.remove();
+            this.showToast(`Lembrete de ${chanName} adiado por 25h.`);
+          };
+
+          card.querySelector('.pp-pop-limit').onclick = () => {
+            modal.style.display = 'none';
+            this.setChannelLimitPause(chanName);
+          };
+
+          sec.appendChild(card);
+        });
+        body.appendChild(sec);
+      }
+
+      modal.style.display = 'flex';
+    },
+
+    // --- Backup & Export ---
+    exportBackup() {
+      const backupData = {
+        app: "PostPlanner",
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        settings: this.settings,
+        channels: this.channels,
+        videos: this.videos
+      };
+
+      const dateStr = new Date().toISOString().split('T')[0];
+      const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `post_planner_backup_${dateStr}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+
+      this.settings.ultimoBackup = Date.now();
+      Storage.saveSetting('global_settings', this.settings);
+      this.checkBackupReminder();
+      this.showToast("Backup exportado com sucesso!");
+    },
+
+    importBackup(mode) {
+      const fileInput = document.getElementById('pp-file-import');
+      const file = fileInput.files[0];
+      if (!file) {
+        alert("Por favor selecione um ficheiro de backup JSON.");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (!data.videos || !Array.isArray(data.videos)) {
+            alert("Ficheiro de backup inválido.");
+            return;
+          }
+
+          if (mode === 'replace') {
+            const confirmed = await CustomDialog.confirmDelete(
+              "Substituir Dados?",
+              "Tem a certeza que deseja SUBSTITUIR TODOS os dados atuais pelos do ficheiro de backup?",
+              "Substituir Tudo"
+            );
+            if (!confirmed) return;
+
+            this.videos = data.videos;
+            this.channels = data.channels || [];
+            if (data.settings) this.settings = { ...this.settings, ...data.settings };
+          } else {
+            const existingIds = new Set(this.videos.map(v => v.id));
+            data.videos.forEach(v => {
+              if (existingIds.has(v.id)) {
+                const idx = this.videos.findIndex(x => x.id === v.id);
+                this.videos[idx] = v;
+              } else {
+                this.videos.push(v);
+              }
+            });
+            (data.channels || []).forEach(c => {
+              const cName = this.getChanName(c);
+              if (!this.channels.some(x => this.normalizeStr(this.getChanName(x)) === this.normalizeStr(cName))) {
+                this.channels.push(typeof c === 'object' ? c : { nome: cName, limiteDiario: null, pausaAte: null, adiarAte: null });
+              }
+            });
+          }
+
+          this.syncChannelsWithVideos();
+          this.saveState();
+          this.showToast("Backup importado com sucesso!");
+          fileInput.value = '';
+          this.switchScreen('pp-screen-list');
+        } catch (err) {
+          alert("Erro ao ler o ficheiro: " + err.message);
+        }
+      };
+      reader.readAsText(file);
+    },
+
+    pasteExampleData() {
+      const now = new Date();
+      const yesterday = new Date(now.getTime() - 24*3600*1000);
+      const in1Hour = new Date(now.getTime() + 3600*1000);
+
+      function toLocalIso(d) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const hh = String(d.getHours()).padStart(2, '0');
+        const mm = String(d.getMinutes()).padStart(2, '0');
+        return `${y}-${m}-${day}T${hh}:${mm}`;
+      }
+
+      const exampleStr = [
+        `{ "canal": "Canal A", "titulo": "Why Ants Never Sleep", "descricao": "Linha 1\\nLinha 2 com \\"aspas\\"\\n\\n#ants #nature", "tags": ["ants", "insects", "nature"], "agendarPara": "${toLocalIso(yesterday)}" }`,
+        `{ "canal": "Canal A", "titulo": "How Bees Talk", "descricao": "Descrição do segundo vídeo.", "tags": "bees, communication, nature", "agendarPara": "${toLocalIso(in1Hour)}" }`,
+        `{ "canal": "Canal B", "titulo": "Por que o cérebro procrastina", "descricao": "Texto da descrição.", "tags": ["psicologia", "cérebro"] }`,
+        `{ "canal": "Canal B", "titulo": "Bloco com erro", "descricao": "falta uma vírgula" "tags": [] }`
+      ].join('\n\n');
+
+      const ta = document.getElementById('pp-import-textarea');
+      ta.value = exampleStr;
+      ta.disabled = false;
+      this.switchScreen('pp-screen-import');
+      this.analyzeImportJson();
+    },
+
+    // --- Bulk Operations ---
+    bulkSetStatus(status) {
+      if (this.selectedIds.size === 0) return;
+      const now = Date.now();
+      this.videos.forEach(v => {
+        if (this.selectedIds.has(v.id)) {
+          v.estado = status;
+          v.atualizadoEm = now;
+          if (status === 'agendado' && !v.enviadoEm) v.enviadoEm = now;
+          if (status === 'publicado') v.publicadoEm = now;
+        }
+      });
+      this.selectedIds.clear();
+      this.isSelectMode = false;
+      this.saveState();
+      this.showToast(`Fichas alteradas para ${status}`);
+    },
+
+    async bulkChangeChannel() {
+      if (this.selectedIds.size === 0) return;
+      const targetChan = await CustomDialog.prompt(
+        "Mudar Canal em Lote",
+        "Novo Canal",
+        "",
+        "Muda o canal de todos os vídeos selecionados"
+      );
+      if (!targetChan || !targetChan.trim()) return;
+
+      const cleanChan = targetChan.trim();
+      if (!this.channels.some(c => this.normalizeStr(this.getChanName(c)) === this.normalizeStr(cleanChan))) {
+        this.channels.push({ nome: cleanChan, limiteDiario: null, pausaAte: null, adiarAte: null });
+      }
+
+      this.videos.forEach(v => {
+        if (this.selectedIds.has(v.id)) {
+          v.canal = cleanChan;
+        }
+      });
+
+      this.selectedIds.clear();
+      this.isSelectMode = false;
+      this.saveState();
+      this.showToast("Canal alterado em lote.");
+    },
+
+    async bulkDelete() {
+      if (this.selectedIds.size === 0) return;
+      
+      const confirmed = await CustomDialog.confirmDelete(
+        "Apagar Selecionados?",
+        `Tem a certeza que deseja apagar ${this.selectedIds.size} ficha(s) selecionada(s)?`,
+        "Apagar Seleção"
+      );
+      if (!confirmed) return;
+
+      const backupVideos = [...this.videos];
+      this.videos = this.videos.filter(v => !this.selectedIds.has(v.id));
+      this.selectedIds.clear();
+      this.isSelectMode = false;
+      this.saveState();
+
+      this.showToast("Fichas apagadas.", () => {
+        this.videos = backupVideos;
+        this.saveState();
+      });
+    },
+
+    // ==========================================
+    // 6. EVENT BINDINGS
+    // ==========================================
+    bindEvents() {
+      document.getElementById('pp-theme-toggle').onclick = () => {
+        const nextTheme = this.settings.tema === 'escuro' ? 'claro' : 'escuro';
+        this.applyTheme(nextTheme);
+      };
+
+      document.querySelectorAll('#pp-main-nav .pp-tab').forEach(tab => {
+        tab.onclick = () => {
+          document.querySelectorAll('#pp-main-nav .pp-tab').forEach(t => t.classList.remove('pp-active'));
+          tab.classList.add('pp-active');
+
+          const targetScreen = tab.dataset.target;
+          if (tab.dataset.tab) {
+            this.currentTab = tab.dataset.tab;
+            this.selectedChannel = 'ALL';
+            this.render();
+          }
+
+          if (tab.dataset.action === 'new') {
+            this.openEditForm();
+          } else {
+            this.switchScreen(targetScreen);
+          }
+        };
+      });
+
+      document.getElementById('pp-search-input').oninput = (e) => {
+        this.searchQuery = e.target.value;
+        this.renderCards();
+      };
+      document.getElementById('pp-search-inc-pub').onchange = (e) => {
+        this.searchIncPub = e.target.checked;
+        this.renderCards();
+      };
+      document.getElementById('pp-sort-select').onchange = (e) => {
+        this.settings.ordenacao = e.target.value;
+        Storage.saveSetting('global_settings', this.settings);
+        this.renderCards();
+      };
+      document.getElementById('pp-toggle-view').onclick = () => {
+        this.settings.vista = this.settings.vista === 'lista' ? 'grelha' : 'lista';
+        Storage.saveSetting('global_settings', this.settings);
+        this.renderCards();
+      };
+
+      document.getElementById('pp-btn-select-mode').onclick = () => {
+        this.isSelectMode = !this.isSelectMode;
+        if (!this.isSelectMode) this.selectedIds.clear();
+        this.renderCards();
+      };
+
+      const impTa = document.getElementById('pp-import-textarea');
+      impTa.addEventListener('click', () => {
+        if (impTa.disabled) {
+          impTa.disabled = false;
+          impTa.focus();
+        }
+      });
+
+      impTa.addEventListener('keydown', (e) => {
+        const isEnter = e.key === 'Enter' || e.code === 'Enter' || e.code === 'NumpadEnter' || e.keyCode === 13;
+        if (isEnter && (e.shiftKey || e.ctrlKey || e.metaKey)) {
+          e.preventDefault();
+          this.analyzeImportJson();
+        }
+      });
+
+      impTa.addEventListener('paste', () => {
+        setTimeout(() => { if (impTa.value.trim()) this.analyzeImportJson(); }, 60);
+      });
+
+      document.getElementById('pp-btn-parse').onclick = () => this.analyzeImportJson();
+
+      document.getElementById('pp-btn-clear-import').onclick = () => {
+        impTa.disabled = false;
+        impTa.value = '';
+        document.getElementById('pp-parse-results').style.display = 'none';
+        this.parseResultsCache = [];
+      };
+
+      document.getElementById('pp-btn-save-parsed').onclick = () => this.saveParsedBatch();
+
+      window.addEventListener('keydown', (e) => {
+        const importScreen = document.getElementById('pp-screen-import');
+        const parseResults = document.getElementById('pp-parse-results');
+        
+        if (importScreen && importScreen.classList.contains('pp-active') && parseResults && parseResults.style.display !== 'none') {
+          if (e.key === 'Enter' && (document.activeElement === document.body || impTa.disabled)) {
+            e.preventDefault();
+            this.saveParsedBatch();
+          }
+        }
+      });
+
+      document.getElementById('pp-empty-import-btn').onclick = () => {
+        this.switchScreen('pp-screen-import');
+      };
+
+      document.getElementById('pp-detail-back').onclick = () => this.switchScreen('pp-screen-list');
+      document.getElementById('pp-detail-prev').onclick = () => this.navigateDetail(-1);
+      document.getElementById('pp-detail-next').onclick = () => this.navigateDetail(1);
+
+      document.getElementById('pp-btn-copy-seq').onclick = () => this.handleSequentialCopy();
+
+      document.querySelectorAll('.pp-copy-btn').forEach(btn => {
+        btn.onclick = (e) => {
+          const target = e.target.dataset.target;
+          const video = this.videos.find(v => v.id === this.currentDetailId);
+          if (!video) return;
+
+          let val = '';
+          if (target === 'title') val = video.titulo;
+          else if (target === 'desc') val = video.descricao;
+          else if (target === 'tags') val = (video.tags || []).join(', ');
+
+          this.copyToClipboard(val, target, e.target);
+        };
+      });
+
+      document.getElementById('pp-detail-date').onchange = (e) => {
+        const video = this.videos.find(v => v.id === this.currentDetailId);
+        if (video) {
+          video.agendarPara = e.target.value || null;
+          video.atualizadoEm = Date.now();
+          this.saveState();
+        }
+      };
+
+      document.getElementById('pp-detail-btn-sched').onclick = () => {
+        const video = this.videos.find(v => v.id === this.currentDetailId);
+        if (video) this.markVideoScheduled(video);
+      };
+
+      document.getElementById('pp-detail-btn-pub').onclick = () => {
+        const video = this.videos.find(v => v.id === this.currentDetailId);
+        if (video) this.toggleQuickPublish(video);
+      };
+
+      document.getElementById('pp-detail-btn-ics').onclick = () => {
+        const video = this.videos.find(v => v.id === this.currentDetailId);
+        if (video) this.exportSingleVideoICS(video);
+      };
+
+      document.getElementById('pp-detail-btn-edit').onclick = () => {
+        this.openEditForm(this.currentDetailId);
+      };
+
+      document.getElementById('pp-detail-btn-dup').onclick = () => {
+        const video = this.videos.find(v => v.id === this.currentDetailId);
+        if (video) {
+          const dup = {
+            ...JSON.parse(JSON.stringify(video)),
+            id: this.generateId(),
+            titulo: video.titulo + ' (Cópia)',
+            criadoEm: Date.now(),
+            atualizadoEm: Date.now()
+          };
+          this.videos.unshift(dup);
+          this.saveState();
+          this.openDetail(dup.id);
+          this.showToast("Ficha duplicada!");
+        }
+      };
+
+      document.getElementById('pp-detail-btn-del').onclick = async () => {
+        const confirmed = await CustomDialog.confirmDelete(
+          "Apagar Ficha?",
+          "Tem a certeza que deseja apagar esta ficha de vídeo?",
+          "Apagar Ficha"
+        );
+        if (!confirmed) return;
+
+        const backup = [...this.videos];
+        this.videos = this.videos.filter(v => v.id !== this.currentDetailId);
+        this.saveState();
+        this.switchScreen('pp-screen-list');
+        this.showToast("Ficha apagada.", () => {
+          this.videos = backup;
+          this.saveState();
+        });
+      };
+
+      document.getElementById('pp-edit-form').onsubmit = (e) => this.saveForm(e);
+      document.getElementById('pp-edit-cancel').onclick = () => this.switchScreen('pp-screen-list');
+      
+      ['pp-edit-title', 'pp-edit-desc', 'pp-edit-tags'].forEach(id => {
+        document.getElementById(id).oninput = () => this.updateFormCounters();
+      });
+
+      document.getElementById('pp-btn-go-settings').onclick = () => this.switchScreen('pp-screen-settings');
+      document.getElementById('pp-btn-save-settings').onclick = () => this.saveGlobalSettingsFromUI();
+
+      document.getElementById('pp-btn-add-channel').onclick = () => {
+        const input = document.getElementById('pp-new-channel-name');
+        const val = input.value.trim();
+        if (!val) return;
+        if (!this.channels.some(c => this.normalizeStr(this.getChanName(c)) === this.normalizeStr(val))) {
+          this.channels.push({ nome: val, limiteDiario: null, pausaAte: null, adiarAte: null });
+          this.saveState();
+          input.value = '';
+          this.renderSettings();
+          this.showToast(`Canal "${val}" adicionado!`);
+        } else {
+          this.showToast("Este canal já existe.");
+        }
+      };
+
+      document.getElementById('pp-btn-export').onclick = () => this.exportBackup();
+      document.getElementById('pp-btn-quick-export').onclick = () => this.exportBackup();
+      document.getElementById('pp-btn-import-merge').onclick = () => this.importBackup('merge');
+      document.getElementById('pp-btn-import-replace').onclick = () => this.importBackup('replace');
+      document.getElementById('pp-btn-paste-example').onclick = () => this.pasteExampleData();
+      
+      document.getElementById('pp-btn-reset-all').onclick = () => this.resetAllData();
+
+      document.getElementById('pp-btn-open-popup').onclick = () => this.checkLembretesPopup(true);
+      document.getElementById('pp-modal-close-x').onclick = () => {
+        document.getElementById('pp-reminder-modal').style.display = 'none';
+      };
+      document.getElementById('pp-modal-close-btn').onclick = () => {
+        document.getElementById('pp-reminder-modal').style.display = 'none';
+      };
+
+      document.getElementById('pp-bulk-agendar').onclick = () => this.bulkSetStatus('agendado');
+      document.getElementById('pp-bulk-publicar').onclick = () => this.bulkSetStatus('publicado');
+      document.getElementById('pp-bulk-canal').onclick = () => this.bulkChangeChannel();
+      document.getElementById('pp-bulk-delete').onclick = () => this.bulkDelete();
+      document.getElementById('pp-bulk-cancel').onclick = () => {
+        this.selectedIds.clear();
+        this.isSelectMode = false;
+        this.renderCards();
+      };
+    }
+  };
+
+  window.addEventListener('DOMContentLoaded', () => {
+    App.init();
+  });
+})();
+</script>
+</body>
+</html>
