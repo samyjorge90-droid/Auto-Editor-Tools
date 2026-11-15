@@ -1,5 +1,5 @@
 /* Auto Editor Tools - service worker (cache-first, 100% offline) */
-const CACHE = 'aet-v1';
+const CACHE = 'aet-v2';
 const ASSETS = [
   "./",
   "fonts/Inter-Bold.woff",
@@ -14,21 +14,17 @@ const ASSETS = [
   "icons/icon-192.png",
   "icons/icon-512.png",
   "icons/icon-maskable-512.png",
+  "icons/srt-favicon-64.png",
+  "icons/srt-icon-header.png",
   "index.html",
   "manifest.webmanifest",
   "tools/fx.html",
   "tools/planeador.html",
   "tools/separador.html",
-  "tools/srt/css/app.css",
-  "tools/srt/css/tw-local.css",
-  "tools/srt/icons/apple-touch-icon.png",
-  "tools/srt/icons/favicon-64.png",
-  "tools/srt/icons/icon-192.png",
-  "tools/srt/icons/icon-512.png",
-  "tools/srt/icons/icon-header.png",
-  "tools/srt/icons/icon-maskable-512.png",
-  "tools/srt/index.html",
-  "tools/srt/js/pwa.js"
+  "tools/srt-app.css",
+  "tools/srt-pwa.js",
+  "tools/srt-tw-local.css",
+  "tools/srt.html"
 ];
 /* Único recurso externo: o Tailwind (CDN). É guardado na 1.ª abertura com internet. */
 const EXTERNAL = ['https://cdn.tailwindcss.com'];

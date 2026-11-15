@@ -159,6 +159,52 @@
       .conveyor-clip-4 { transform: translate(935px, 212px) !important; opacity: 1 !important; }
     }
   </style>
+<style id="aet-layout">
+/* ===== Layout compacto das ferramentas ===== */
+main{position:relative}
+#bottomNav{display:none}
+#navToggle{display:none}
+#sidebarNav{position:relative;z-index:30;transition:width .25s ease}
+/* Faixa fina de título quando uma ferramenta está aberta (todos os tamanhos) */
+body.in-tool #heroTitle{font-size:1.05rem!important;line-height:1.6rem!important;font-weight:600!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.in-tool #heroSubtitle{display:none}
+body.in-tool main{overflow:hidden}
+body.in-tool #toolWorkspaceSection{padding-top:.5rem!important;padding-bottom:0!important}
+body.in-tool #toolWorkspaceArea{min-height:0!important;border-radius:.9rem}
+body.in-tool #toolStatusWrap{position:absolute;top:0;right:0;padding:0!important}
+body.in-tool #toolStatusWrap>div{padding:.2rem .75rem}
+body.in-tool #toolStatusText{display:block;max-width:44vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (min-width:1024px){
+  body.in-tool #mainWrap{padding:.6rem .8rem!important;gap:.8rem!important}
+  body.in-tool:not(.nav-expanded) #sidebarNav{width:72px!important}
+  body.in-tool:not(.nav-expanded) #sidebarNav>div{padding:.5rem!important}
+  body.in-tool:not(.nav-expanded) .nav-item{justify-content:center;padding-left:0!important;padding-right:0!important;gap:0!important;position:relative}
+  body.in-tool:not(.nav-expanded) .nav-item>span:last-child{display:none}
+  body.in-tool:not(.nav-expanded) .nav-item[data-label]:hover::after,
+  body.in-tool:not(.nav-expanded) .nav-item[data-label]:focus-visible::after{content:attr(data-label);position:absolute;left:calc(100% + 12px);top:50%;transform:translateY(-50%);background:#0F182B;color:#e2e8f0;border:1px solid #334155;padding:.35rem .6rem;border-radius:.5rem;font-size:.75rem;white-space:nowrap;box-shadow:0 8px 20px rgba(0,0,0,.45);z-index:60;pointer-events:none}
+  body.in-tool #navToggle{display:flex;align-items:center;justify-content:center;width:100%;height:34px;margin-top:.5rem;border-radius:.6rem;background:#111A2E;border:1px solid #334155;color:#94a3b8;cursor:pointer}
+  body.in-tool #navToggle:hover{color:#fff;border-color:#64748b}
+  body.in-tool:not(.nav-expanded) #navToggle svg{transform:rotate(180deg)}
+}
+@media (max-width:1023px){
+  #sidebarNav,#mobileMenuBtn,#homeBtn{display:none!important}
+  header>div{height:48px!important}
+  #mainWrap{height:calc(100dvh - 48px)!important;padding:.6rem .6rem calc(64px + env(safe-area-inset-bottom,0px) + .4rem)!important}
+  body.in-tool #mainWrap{padding:.4rem .4rem calc(64px + env(safe-area-inset-bottom,0px) + .3rem)!important;gap:.4rem!important}
+  body.in-tool #heroTitle{padding-bottom:1.35rem}
+  body.in-tool #toolStatusWrap{top:1.7rem;left:0;right:auto}
+  body.in-tool #toolStatusText{font-size:.7rem;max-width:88vw}
+  #bottomNav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:40;height:calc(56px + env(safe-area-inset-bottom,0px));padding-bottom:env(safe-area-inset-bottom,0px);background:rgba(7,13,26,.96);border-top:1px solid rgba(51,65,85,.8);backdrop-filter:blur(10px)}
+  #bottomNav .bnav{flex:1;min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:.68rem;font-weight:600;color:#94a3b8;background:none;border:0;cursor:pointer;transition:color .2s}
+  #bottomNav .bnav svg{width:22px;height:22px}
+  body:not(.in-tool) #bottomNav .bnav[data-home],
+  body[data-tool="separador"] #bottomNav .bnav[data-tool="separador"],
+  body[data-tool="srt"] #bottomNav .bnav[data-tool="srt"],
+  body[data-tool="fx"] #bottomNav .bnav[data-tool="fx"],
+  body[data-tool="planeador"] #bottomNav .bnav[data-tool="planeador"]{color:#38bdf8}
+}
+@media (prefers-reduced-motion:reduce){#sidebarNav{transition:none}}
+</style>
 </head>
 <body class="bg-gradient-to-br from-[#060c18] via-[#081020] to-[#0b1628] text-white font-sans antialiased w-screen h-[100dvh] flex flex-col justify-between selection:bg-blue-500 selection:text-white overflow-hidden">
 
@@ -230,7 +276,7 @@
   </header>
 
   <!-- MAIN WORKSPACE CONTAINER -->
-  <div class="relative z-10 flex-1 w-full h-[calc(100dvh-4rem)] flex flex-col lg:flex-row px-5 sm:px-8 py-4 lg:py-6 gap-5 lg:gap-8 overflow-hidden">
+  <div id="mainWrap" class="relative z-10 flex-1 w-full h-[calc(100dvh-4rem)] flex flex-col lg:flex-row px-5 sm:px-8 py-4 lg:py-6 gap-5 lg:gap-8 overflow-hidden">
 
     <!-- LEFT SIDEBAR NAVIGATION (4 Items, Neutral by default on Home) -->
     <aside id="sidebarNav" class="hidden lg:flex flex-col justify-start w-[250px] shrink-0">
@@ -650,7 +696,7 @@
         <div id="toolWorkspaceArea" class="relative flex-1 w-full min-h-[62dvh] overflow-hidden rounded-2xl border border-slate-800/80 bg-[#0D1528]/40"></div>
 
         <!-- Bottom Right Discrete Status Tag (Same position as previous progress pill) -->
-        <div class="shrink-0 pt-4 flex justify-center lg:justify-end lg:pr-8">
+        <div id="toolStatusWrap" class="shrink-0 pt-4 flex justify-center lg:justify-end lg:pr-8">
           <div class="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-[#111A2E]/90 border border-slate-700/80 text-slate-300 shadow-lg">
             <span class="w-2 h-2 rounded-full bg-sky-400"></span>
             <span id="toolStatusText" class="text-xs sm:text-sm font-medium tracking-wide"></span>
@@ -725,6 +771,7 @@
         homeSceneSection.classList.remove('hidden');
         homeSceneSection.classList.add('flex');
 
+        document.body.classList.remove('in-tool'); document.body.removeAttribute('data-tool');
         closeMobileMenu();
       }
 
@@ -745,6 +792,7 @@
         toolWorkspaceSection.classList.remove('hidden');
         toolWorkspaceSection.classList.add('flex');
 
+        document.body.classList.add('in-tool'); document.body.setAttribute('data-tool', toolKey);
         closeMobileMenu();
       }
 
@@ -781,7 +829,7 @@
 
   <script>
   (function () {
-    var FRAMES = { separador: 'tools/separador.html', srt: 'tools/srt/index.html', fx: 'tools/fx.html', planeador: 'tools/planeador.html' };
+    var FRAMES = { separador: 'tools/separador.html', srt: 'tools/srt.html', fx: 'tools/fx.html', planeador: 'tools/planeador.html' };
     var area = document.getElementById('toolWorkspaceArea'), made = {}, current = null, timer = null;
 
     function openFrame(key) {
@@ -858,6 +906,42 @@
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function (e) { console.warn('SW falhou:', e); }); });
     }
+  })();
+  </script>
+
+  <!-- Barra de navegação inferior (telemóvel) -->
+  <nav id="bottomNav" aria-label="Ferramentas">
+    <button type="button" class="bnav" data-home aria-label="Início"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10"/></svg><span>Início</span></button>
+    <button type="button" class="bnav" data-tool="separador" aria-label="Separador de texto"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><span>Texto</span></button>
+    <button type="button" class="bnav" data-tool="srt" aria-label="SRT Limpo"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path stroke-linecap="round" d="M7 11h4m3 0h3M7 15h2m3 0h5"/></svg><span>SRT</span></button>
+    <button type="button" class="bnav" data-tool="fx" aria-label="Criador de efeitos"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 19L19 5m-3 0v2m3 3h-2M7 3v2M4 6h2m13 11v2m-1-1h2"/></svg><span>FX</span></button>
+    <button type="button" class="bnav" data-tool="planeador" aria-label="Planeador de postagens"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg><span>Plano</span></button>
+  </nav>
+
+  <script>
+  (function () {
+    // Etiquetas (tooltips) dos ícones e botão de expandir/recolher o menu
+    document.querySelectorAll('.nav-item').forEach(function (b) {
+      var sp = b.querySelectorAll('span'); var t = sp.length ? sp[sp.length - 1].textContent.trim() : '';
+      b.setAttribute('data-label', t); b.setAttribute('aria-label', t); b.setAttribute('title', t);
+    });
+    var aside = document.getElementById('sidebarNav');
+    var tg = document.createElement('button');
+    tg.id = 'navToggle'; tg.type = 'button'; tg.setAttribute('aria-label', 'Expandir ou recolher o menu'); tg.title = 'Expandir / recolher o menu';
+    tg.innerHTML = '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 6l-6 6 6 6"/></svg>';
+    aside.appendChild(tg);
+    try { if (sessionStorage.getItem('aet-nav') === 'open') document.body.classList.add('nav-expanded'); } catch (e) {}
+    tg.addEventListener('click', function () {
+      var on = document.body.classList.toggle('nav-expanded');
+      try { sessionStorage.setItem('aet-nav', on ? 'open' : 'closed'); } catch (e) {}
+    });
+    // Barra inferior reutiliza a navegação existente
+    document.querySelectorAll('#bottomNav .bnav').forEach(function (b) {
+      b.addEventListener('click', function () {
+        if (b.hasAttribute('data-home')) { document.getElementById('homeBtn').click(); return; }
+        var t = document.querySelector('.nav-item[data-tool="' + b.dataset.tool + '"]'); if (t) t.click();
+      });
+    });
   })();
   </script>
 </body>
