@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AUTO EDITOR TOOLS</title>
+  <!-- Tailwind CSS -->
+  <meta name="theme-color" content="#0B1121">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" href="icons/favicon-64.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="fonts/fonts.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            navy: {
+              950: '#060c18',
+              900: '#0b1628',
+              850: '#101B33',
+              800: '#16233E',
+              700: '#213356',
+            },
+          },
+          animation: {
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'yt-float': 'ytFloat 3.4s ease-in-out infinite',
+            'spin-cw': 'spinCw 3.2s linear infinite',
+            'spin-ccw': 'spinCcw 3.2s linear infinite',
+            'roller-spin': 'spinCw 2.4s linear infinite',
+            'head-bob': 'headBob 2.4s ease-in-out infinite',
+            'type-left': 'typeHand 0.42s ease-in-out infinite alternate',
+            'type-right': 'typeHand 0.42s ease-in-out 0.21s infinite alternate',
+            'blink': 'blinkEye 4.2s infinite',
+            'belt-slats': 'beltSlats 0.85s linear infinite',
+            'clip-bob': 'clipBob 2.2s ease-in-out infinite',
+          },
+          keyframes: {
+            ytFloat: {
+              '0%, 100%': { transform: 'translate(765px, 64px)' },
+              '50%': { transform: 'translate(765px, 50px)' },
+            },
+            spinCw: {
+              '0%': { transform: 'rotate(0deg)' },
+              '100%': { transform: 'rotate(360deg)' },
+            },
+            spinCcw: {
+              '0%': { transform: 'rotate(360deg)' },
+              '100%': { transform: 'rotate(0deg)' },
+            },
+            headBob: {
+              '0%, 100%': { transform: 'translateY(0px) rotate(-1.5deg)' },
+              '50%': { transform: 'translateY(3.5px) rotate(3deg)' },
+            },
+            typeHand: {
+              '0%': { transform: 'translateY(0px)' },
+              '100%': { transform: 'translateY(-4px)' },
+            },
+            blinkEye: {
+              '0%, 88%, 100%': { transform: 'scaleY(1)' },
+              '92%, 95%': { transform: 'scaleY(0.08)' },
+            },
+            beltSlats: {
+              '0%': { transform: 'translateX(0px)' },
+              '100%': { transform: 'translateX(30px)' },
+            },
+            clipBob: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-3px)' },
+            }
+          }
+        },
+      },
+    };
+  </script>
+  <style>
+    html, body {
+      width: 100vw;
+      height: 100dvh;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    .svg-origin-center {
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+    /* Animação dos pulsos nos circuitos usando apenas transform e opacity */
+    @keyframes circuitPulse {
+      0%, 100% {
+        opacity: 0.35;
+        transform: translateX(0px);
+      }
+      50% {
+        opacity: 1;
+        transform: translateX(6px);
+      }
+    }
+    .animate-circuit-pulse {
+      animation: circuitPulse 1.6s ease-in-out infinite;
+    }
+    .animate-circuit-pulse-fast {
+      animation: circuitPulse 1.15s ease-in-out infinite;
+    }
+
+    /* Animação contínua dos cartões deslizando sobre a esteira */
+    @keyframes conveyorClipRide {
+      0% {
+        transform: translate(540px, 212px);
+        opacity: 0;
+      }
+      8% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 1;
+      }
+      100% {
+        transform: translate(1005px, 212px);
+        opacity: 0;
+      }
+    }
+    .conveyor-clip-1 {
+      animation: conveyorClipRide 8s linear infinite;
+      animation-delay: 0s;
+    }
+    .conveyor-clip-2 {
+      animation: conveyorClipRide 8s linear infinite;
+      animation-delay: -2s;
+    }
+    .conveyor-clip-3 {
+      animation: conveyorClipRide 8s linear infinite;
+      animation-delay: -4s;
+    }
+    .conveyor-clip-4 {
+      animation: conveyorClipRide 8s linear infinite;
+      animation-delay: -6s;
+    }
+
+    /* Respeita preferência de movimento reduzido */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .animate-yt-float {
+        transform: translate(765px, 58px) !important;
+      }
+      .conveyor-clip-1 { transform: translate(575px, 212px) !important; opacity: 1 !important; }
+      .conveyor-clip-2 { transform: translate(695px, 212px) !important; opacity: 1 !important; }
+      .conveyor-clip-3 { transform: translate(815px, 212px) !important; opacity: 1 !important; }
+      .conveyor-clip-4 { transform: translate(935px, 212px) !important; opacity: 1 !important; }
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-[#060c18] via-[#081020] to-[#0b1628] text-white font-sans antialiased w-screen h-[100dvh] flex flex-col justify-between selection:bg-blue-500 selection:text-white overflow-hidden">
+
+  <!-- Background Ambient Glows & Wave Layers -->
+  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+    <div class="absolute -top-32 -left-32 w-[520px] h-[520px] rounded-full bg-blue-600/10 blur-[120px]"></div>
+    <svg class="absolute bottom-0 right-0 w-full h-[75%] opacity-40" viewBox="0 0 1440 700" fill="none" preserveAspectRatio="none">
+      <path d="M550 700C680 510 920 490 1120 320C1260 200 1350 90 1440 40V700H550Z" fill="url(#waveGrad1)" />
+      <path d="M250 700C450 580 780 610 1050 430C1230 310 1360 220 1440 180V700H250Z" fill="url(#waveGrad2)" />
+      <defs>
+        <linearGradient id="waveGrad1" x1="995" y1="40" x2="995" y2="700" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#1E3566" stop-opacity="0.55" />
+          <stop offset="100%" stop-color="#060c18" stop-opacity="0" />
+        </linearGradient>
+        <linearGradient id="waveGrad2" x1="845" y1="180" x2="845" y2="700" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#142447" stop-opacity="0.7" />
+          <stop offset="100%" stop-color="#060c18" stop-opacity="0" />
+        </linearGradient>
+      </defs>
+    </svg>
+  </div>
+
+  <!-- TOP NAVIGATION BAR -->
+  <header class="relative z-20 w-full shrink-0 border-b border-slate-800/80 bg-[#070d1a]/90 backdrop-blur-md">
+    <div class="w-full px-5 sm:px-8 h-14 sm:h-16 flex items-center justify-between gap-3">
+      
+      <!-- Left: Mobile Sidebar Toggle + Brand Title -->
+      <div class="flex items-center gap-3">
+        <button id="mobileMenuBtn" aria-label="Abrir Menu" class="lg:hidden p-2 rounded-lg bg-slate-800/70 border border-slate-700/70 text-slate-300 hover:text-white hover:bg-slate-700 transition cursor-pointer">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+
+        <button id="brandHomeBtn" type="button" class="flex items-center gap-1.5 tracking-wider font-extrabold text-lg sm:text-xl select-none cursor-pointer">
+          <span class="text-white">AUTO</span>
+          <span class="bg-gradient-to-r from-sky-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">EDITOR</span>
+          <span class="text-slate-400 font-bold">TOOLS</span>
+        </button>
+      </div>
+
+      <!-- Right: Static 100% Offline Badge & Home Icon -->
+      <div class="flex items-center gap-2.5 sm:gap-3">
+        <!-- Fixed 100% Offline Pill (Non-interactive) -->
+        <div class="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0E1930] border border-sky-400/50 shadow-[0_0_16px_rgba(56,189,248,0.32)] select-none">
+          <span class="w-2.5 h-2.5 rounded-full bg-sky-400 shadow-[0_0_8px_#38bdf8]"></span>
+          <span class="text-xs sm:text-sm font-medium text-slate-100">100% Offline</span>
+        </div>
+
+        <!-- Instalar app (só aparece se o navegador permitir) -->
+        <button id="installBtn" type="button" style="display:none" class="items-center gap-1.5 px-3 h-9 rounded-lg bg-gradient-to-r from-[#3898EC] to-[#2563EB] text-white text-xs sm:text-sm font-semibold shadow-lg shadow-blue-500/20 hover:brightness-110 transition cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v11m0 0l-4-4m4 4l4-4M5 19h14"/></svg>
+          <span>Instalar app</span>
+        </button>
+        <!-- Como instalar (quando o navegador não oferece o botão) -->
+        <button id="howInstallBtn" type="button" style="display:none" class="items-center gap-1.5 px-3 h-9 rounded-lg bg-[#111A2E] border border-slate-700/80 text-slate-300 hover:text-white hover:border-slate-500 text-xs sm:text-sm font-medium transition cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" d="M12 11v5m0-8.5v.01"/></svg>
+          <span>Como instalar</span>
+        </button>
+
+        <!-- Home Button -->
+        <button id="homeBtn" aria-label="Página Inicial" title="Página Inicial" class="w-9 h-9 rounded-lg bg-[#111A2E] border border-slate-700/80 flex items-center justify-center text-slate-300 hover:text-white hover:border-slate-500 transition cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1v-9.5z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN WORKSPACE CONTAINER -->
+  <div class="relative z-10 flex-1 w-full h-[calc(100dvh-4rem)] flex flex-col lg:flex-row px-5 sm:px-8 py-4 lg:py-6 gap-5 lg:gap-8 overflow-hidden">
+
+    <!-- LEFT SIDEBAR NAVIGATION (4 Items, Neutral by default on Home) -->
+    <aside id="sidebarNav" class="hidden lg:flex flex-col justify-start w-[250px] shrink-0">
+      <div class="rounded-2xl bg-[#0D1528]/85 border border-slate-800/90 p-3.5 shadow-2xl backdrop-blur-md space-y-2.5">
+        
+        <!-- Item 1: Separador de texto -->
+        <button data-tool="separador" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm text-left transition-opacity duration-200 bg-[#1B253B]/80 hover:bg-[#23314E] text-slate-200 cursor-pointer">
+          <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <span>Separador de texto</span>
+        </button>
+
+        <!-- Item 2: SRT Limpo -->
+        <button data-tool="srt" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm text-left transition-opacity duration-200 bg-[#1B253B]/80 hover:bg-[#23314E] text-slate-200 cursor-pointer">
+          <span class="px-1.5 py-0.5 text-[10px] font-bold tracking-tight rounded border border-slate-400/70 text-slate-200 leading-none">SRT</span>
+          <span>SRT Limpo</span>
+        </button>
+
+        <!-- Item 3: Criador de efeitos especiais -->
+        <button data-tool="fx" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm text-left transition-opacity duration-200 bg-[#1B253B]/80 hover:bg-[#23314E] text-slate-200 cursor-pointer">
+          <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 4V2m0 14v-2M8 9h2m10 0h2M17.8 11.8L19 13m-9.8-1.2L8 13m9.8-6.8L19 5M3 21l9-9m0 0l3 3" />
+          </svg>
+          <span>Criador de efeitos especiais</span>
+        </button>
+
+        <!-- Item 4: Planeador de postagens -->
+        <button data-tool="planeador" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm text-left transition-opacity duration-200 bg-[#1B253B]/80 hover:bg-[#23314E] text-slate-200 cursor-pointer">
+          <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+          </svg>
+          <span>Planeador de postagens</span>
+        </button>
+
+      </div>
+    </aside>
+
+    <!-- RIGHT CONTENT AREA (Own Scroll) -->
+    <main class="flex-1 h-full flex flex-col justify-between overflow-y-auto pr-1">
+      
+      <!-- Header Section (Title & Subtitle) -->
+      <section class="max-w-4xl shrink-0">
+        <h1 id="heroTitle" class="text-2xl sm:text-3xl xl:text-[40px] font-bold tracking-tight text-white leading-tight">
+          Corta, limpa, anima, planeia. Tudo num só sítio.
+        </h1>
+        <p id="heroSubtitle" class="mt-2.5 text-xs sm:text-sm xl:text-base text-slate-300/90 leading-relaxed max-w-2xl">
+          Ferramentas para preparar roteiros, legendas e efeitos. Funciona offline e cada ferramenta guarda na sua própria pasta.
+        </p>
+      </section>
+
+      <!-- HOME VIEW: ILLUSTRATED PIPELINE GRAPHIC (Visible only on Home) -->
+      <section id="homeSceneSection" class="flex-1 min-h-0 flex flex-col justify-center relative w-full pt-2">
+        <div class="flex-1 min-h-0 w-full flex items-center justify-center">
+          <svg viewBox="0 0 1120 460" preserveAspectRatio="xMidYMid meet" class="w-full h-full max-h-[66vh] drop-shadow-2xl select-none" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <!-- Glowing Cyan Circuit Filter -->
+              <filter id="cyanGlow" x="-25%" y="-25%" width="150%" height="150%">
+                <feGaussianBlur stdDeviation="3.5" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+
+              <!-- Floating YouTube Red Card Glow -->
+              <filter id="redGlow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="13" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+
+              <!-- Metallic Conveyor Gradients -->
+              <linearGradient id="beltTop" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#475569" />
+                <stop offset="50%" stop-color="#64748B" />
+                <stop offset="100%" stop-color="#334155" />
+              </linearGradient>
+
+              <linearGradient id="beltBodyGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#27354F" />
+                <stop offset="100%" stop-color="#141E33" />
+              </linearGradient>
+
+              <linearGradient id="ytRed" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#EF4444" />
+                <stop offset="100%" stop-color="#B91C1C" />
+              </linearGradient>
+
+              <!-- ClipPath para manter as ripas da esteira estritamente dentro da superfície superior -->
+              <clipPath id="beltSurfaceClip">
+                <path d="M565 275 L1035 275 L1072 315 L528 315 Z" />
+              </clipPath>
+            </defs>
+
+            <!-- ================= 1. LEFT: EXPRESSIVE CHARACTER ("You") ================= -->
+            <g id="characterGroup">
+              <!-- "You" Label -->
+              <text x="125" y="112" fill="#E2E8F0" font-family="Inter, sans-serif" font-size="19" font-weight="600" text-anchor="middle">You</text>
+
+              <!-- Modern Office Chair -->
+              <g id="modernChair">
+                <rect x="48" y="280" width="7" height="60" rx="3.5" fill="#94A3B8" />
+                <rect x="36" y="218" width="25" height="72" rx="12.5" fill="#64748B" stroke="#CBD5E1" stroke-width="3" />
+                <rect x="48" y="334" width="70" height="16" rx="8" fill="#94A3B8" stroke="#CBD5E1" stroke-width="2.5" />
+                <path d="M56 350 V408 M104 350 V408 M48 408 H110" stroke="#94A3B8" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round" />
+              </g>
+
+              <!-- Character Legs & Shoes -->
+              <g id="characterLegs">
+                <path d="M90 334 H136 V403" stroke="#090D16" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M129 403 H152 C156 403 158 406 158 409 H129 Z" fill="#090D16" />
+              </g>
+
+              <!-- Character Torso (White Hoodie with Hood) -->
+              <g id="characterTorso">
+                <path d="M80 260 C80 248 114 248 116 262 L122 334 H78 Z" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.5" stroke-linejoin="round" />
+                <path d="M80 258 C67 256 65 270 76 275 C70 280 78 285 86 279 Z" fill="#E2E8F0" stroke="#CBD5E1" stroke-width="1.5" stroke-linejoin="round" />
+              </g>
+
+              <!-- Animated Head & Expressive Face -->
+              <g class="animate-head-bob svg-origin-center">
+                <!-- Neck -->
+                <rect x="98" y="238" width="17" height="20" rx="6" fill="#5C3A28" />
+
+                <!-- Head Base -->
+                <circle cx="122" cy="204" r="41" fill="#6E4733" />
+                <path d="M122 163 A41 41 0 0 1 122 245 A35 41 0 0 0 122 163 Z" fill="#7D523C" opacity="0.55" />
+
+                <!-- Fade Haircut -->
+                <path d="M82 197 C82 170 101 160 123 160 C145 160 161 171 162 193 C154 183 143 180 123 180 C104 180 92 184 88 198 Z" fill="#12131A" />
+                <path d="M83 197 C89 185 103 181 123 181 C143 181 154 184 161 194 L159 199 C151 191 141 188 123 188 C105 188 92 192 86 203 Z" fill="#2A2223" opacity="0.75" />
+
+                <!-- Red Headphones Band -->
+                <path d="M78 202 C78 152 166 152 166 202" stroke="#EF4444" stroke-width="8" stroke-linecap="round" fill="none" />
+                <path d="M80 200 C80 155 164 155 164 200" stroke="#F87171" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.6" />
+
+                <!-- Right Ear Cup (Background) -->
+                <rect x="155" y="189" width="12" height="29" rx="6" fill="#B91C1C" />
+
+                <!-- Eyebrows -->
+                <path d="M108 194 Q116 191 123 194" stroke="#18181B" stroke-width="2.8" stroke-linecap="round" fill="none" />
+                <path d="M141 194 Q147 191 153 194" stroke="#18181B" stroke-width="2.8" stroke-linecap="round" fill="none" />
+
+                <!-- Blinking Eyes -->
+                <g class="animate-blink svg-origin-center">
+                  <circle cx="117" cy="204" r="3.8" fill="#141418" />
+                  <circle cx="118.2" cy="202.8" r="1.2" fill="#FFFFFF" opacity="0.9" />
+                  <circle cx="146" cy="204" r="3.8" fill="#141418" />
+                  <circle cx="147.2" cy="202.8" r="1.2" fill="#FFFFFF" opacity="0.9" />
+                </g>
+
+                <!-- Nose -->
+                <path d="M134 205 V214 C134 216 131 217 129 216" stroke="#472B1D" stroke-width="2.3" stroke-linecap="round" fill="none" />
+
+                <!-- Smile -->
+                <path d="M121 224 Q131 230 142 223" stroke="#3B2216" stroke-width="2.6" stroke-linecap="round" fill="none" />
+
+                <!-- Left Red Headphone Ear Cup (Foreground) -->
+                <rect x="81" y="187" width="14" height="33" rx="6.5" fill="#991B1B" />
+                <rect x="69" y="185" width="17" height="37" rx="8" fill="#EF4444" stroke="#DC2626" stroke-width="1.5" />
+                <rect x="72" y="189" width="4" height="28" rx="2" fill="#FCA5A5" opacity="0.45" />
+              </g>
+
+              <!-- Animated Typing Arms -->
+              <g class="animate-type-left">
+                <path d="M94 268 L114 298 L154 298" stroke="#F8FAFC" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+                <path d="M94 268 L114 298 L154 298" stroke="#CBD5E1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+                <path d="M152 294 H164 C167 294 169 297 169 300 H152 Z" fill="#6E4733" />
+              </g>
+
+              <!-- Modern Desk -->
+              <g id="modernDesk">
+                <rect x="92" y="306" width="188" height="11" rx="5.5" fill="#94A3B8" stroke="#CBD5E1" stroke-width="2" />
+                <rect x="110" y="317" width="9" height="96" rx="2" fill="#64748B" />
+                <rect x="254" y="317" width="9" height="96" rx="2" fill="#64748B" />
+              </g>
+
+              <!-- Laptop with Glowing "AI" Logo -->
+              <g id="aiLaptop">
+                <rect x="144" y="301" width="80" height="5" rx="2.5" fill="#E2E8F0" />
+                <path d="M158 302 L228 302 L244 251 L175 251 Z" fill="#CBD5E1" stroke="#F1F5F9" stroke-width="2" stroke-linejoin="round" />
+                <text x="201" y="284" fill="#38BDF8" font-family="Inter, sans-serif" font-size="22" font-weight="800" text-anchor="middle" filter="url(#cyanGlow)" class="animate-pulse">AI</text>
+              </g>
+            </g>
+
+            <!-- ================= 2. CENTER: GLOWING CIRCUIT TRACES ================= -->
+            <g id="circuitTraces" filter="url(#cyanGlow)">
+              <!-- Base Circuit Paths -->
+              <g stroke="#0284C7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.55">
+                <path d="M180 317 V372 L212 404 H345 L378 371 H455 L475 351 H535" />
+                <path d="M196 317 V362 L224 390 H336 L368 358 H446 L466 338 H535" />
+                <path d="M212 317 V350 L236 374 H326 L356 344 H438 L456 326 H538" />
+                <path d="M228 317 V338 L246 356 H316 L344 328 H430 L446 314 H542" />
+                <path d="M244 317 V328 L256 340 H308 L332 316 H422 L436 304 H548" />
+              </g>
+
+              <!-- Animated Flowing Light Dashes (Using transform/opacity only) -->
+              <g stroke="#38BDF8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="14 34">
+                <path d="M180 317 V372 L212 404 H345 L378 371 H455 L475 351 H535" class="animate-circuit-pulse" />
+                <path d="M196 317 V362 L224 390 H336 L368 358 H446 L466 338 H535" class="animate-circuit-pulse-fast" />
+                <path d="M212 317 V350 L236 374 H326 L356 344 H438 L456 326 H538" class="animate-circuit-pulse" />
+                <path d="M228 317 V338 L246 356 H316 L344 328 H430 L446 314 H542" class="animate-circuit-pulse-fast" />
+                <path d="M244 317 V328 L256 340 H308 L332 316 H422 L436 304 H548" class="animate-circuit-pulse" />
+              </g>
+
+              <!-- Glowing Circuit Nodes & Junctions -->
+              <g fill="#7DD3FC">
+                <circle cx="180" cy="372" r="3.5" />
+                <circle cx="212" cy="404" r="3.5" />
+                <circle cx="345" cy="404" r="3.5" />
+                <circle cx="378" cy="371" r="4" />
+                <circle cx="336" cy="390" r="3" />
+                <circle cx="368" cy="358" r="3.5" />
+                <circle cx="326" cy="374" r="3" />
+                <circle cx="356" cy="344" r="3.5" />
+                <circle cx="316" cy="356" r="3" />
+                <circle cx="344" cy="328" r="3.5" />
+                <!-- Connector pins entering conveyor -->
+                <rect x="526" y="347" width="12" height="7" rx="3.5" fill="#38BDF8" />
+                <rect x="526" y="334" width="12" height="7" rx="3.5" fill="#7DD3FC" />
+                <rect x="528" y="322" width="12" height="7" rx="3.5" fill="#38BDF8" />
+                <rect x="532" y="310" width="12" height="7" rx="3.5" fill="#7DD3FC" />
+                <rect x="538" y="300" width="12" height="7" rx="3.5" fill="#38BDF8" />
+              </g>
+            </g>
+
+            <!-- ================= 3. RIGHT: ANIMATED CONVEYOR BELT & ITEMS ================= -->
+            <g id="conveyorAssembly">
+              
+              <!-- Floating Red YouTube Play Badge Centered Directly Above Conveyor -->
+              <g class="animate-yt-float">
+                <rect x="0" y="0" width="112" height="78" rx="20" fill="url(#ytRed)" filter="url(#redGlow)" stroke="#FCA5A5" stroke-width="1.5" stroke-opacity="0.6" />
+                <polygon points="45,23 45,55 74,39" fill="#FFFFFF" />
+                <!-- Crisp White & Colored Sparkles -->
+                <circle cx="-12" cy="18" r="3" fill="#FFFFFF" class="animate-ping" style="animation-duration: 2.6s" />
+                <circle cx="126" cy="14" r="3.5" fill="#38BDF8" class="animate-pulse" />
+                <circle cx="122" cy="64" r="3" fill="#FACC15" class="animate-pulse" />
+                <path d="M-16 54 L-10 54 M-13 51 L-13 57" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" />
+                <path d="M56 -14 L56 -6 M52 -10 L60 -10" stroke="#7DD3FC" stroke-width="2" stroke-linecap="round" />
+              </g>
+
+              <!-- Conveyor Top Belt Surface -->
+              <path d="M565 275 L1035 275 L1072 315 L528 315 Z" fill="url(#beltTop)" stroke="#94A3B8" stroke-width="2" />
+
+              <!-- Moving Diagonal Belt Slats (Clipped inside Top Belt Surface) -->
+              <g clip-path="url(#beltSurfaceClip)">
+                <g class="animate-belt-slats" stroke="#1E293B" stroke-width="3" opacity="0.75">
+                  <line x1="480" y1="273" x2="462" y2="317" />
+                  <line x1="510" y1="273" x2="492" y2="317" />
+                  <line x1="540" y1="273" x2="522" y2="317" />
+                  <line x1="570" y1="273" x2="552" y2="317" />
+                  <line x1="600" y1="273" x2="582" y2="317" />
+                  <line x1="630" y1="273" x2="612" y2="317" />
+                  <line x1="660" y1="273" x2="642" y2="317" />
+                  <line x1="690" y1="273" x2="672" y2="317" />
+                  <line x1="720" y1="273" x2="702" y2="317" />
+                  <line x1="750" y1="273" x2="732" y2="317" />
+                  <line x1="780" y1="273" x2="762" y2="317" />
+                  <line x1="810" y1="273" x2="792" y2="317" />
+                  <line x1="840" y1="273" x2="822" y2="317" />
+                  <line x1="870" y1="273" x2="852" y2="317" />
+                  <line x1="900" y1="273" x2="882" y2="317" />
+                  <line x1="930" y1="273" x2="912" y2="317" />
+                  <line x1="960" y1="273" x2="942" y2="317" />
+                  <line x1="990" y1="273" x2="972" y2="317" />
+                  <line x1="1020" y1="273" x2="1002" y2="317" />
+                  <line x1="1050" y1="273" x2="1032" y2="317" />
+                  <line x1="1080" y1="273" x2="1062" y2="317" />
+                </g>
+              </g>
+
+              <!-- Conveyor Side Chassis / Frame -->
+              <rect x="524" y="315" width="552" height="72" rx="36" fill="url(#beltBodyGrad)" stroke="#64748B" stroke-width="3.5" />
+              <rect x="536" y="325" width="528" height="52" rx="26" fill="#0F172A" stroke="#334155" stroke-width="2" />
+
+              <!-- Roller 1 (Far Left) -->
+              <g transform="translate(564, 351)">
+                <g class="animate-roller-spin svg-origin-center">
+                  <circle cx="0" cy="0" r="22" fill="#334155" stroke="#94A3B8" stroke-width="3" />
+                  <line x1="-18" y1="0" x2="18" y2="0" stroke="#64748B" stroke-width="2.5" />
+                  <line x1="0" y1="-18" x2="0" y2="18" stroke="#64748B" stroke-width="2.5" />
+                  <circle cx="11" cy="0" r="2.5" fill="#38BDF8" />
+                  <circle cx="0" cy="0" r="7" fill="#0F172A" stroke="#38BDF8" stroke-width="2" />
+                </g>
+              </g>
+
+              <!-- Roller 2 (Mid Left) -->
+              <g transform="translate(672, 351)">
+                <g class="animate-roller-spin svg-origin-center">
+                  <circle cx="0" cy="0" r="22" fill="#334155" stroke="#94A3B8" stroke-width="3" />
+                  <line x1="-18" y1="0" x2="18" y2="0" stroke="#64748B" stroke-width="2.5" />
+                  <line x1="0" y1="-18" x2="0" y2="18" stroke="#64748B" stroke-width="2.5" />
+                  <circle cx="11" cy="0" r="2.5" fill="#38BDF8" />
+                  <circle cx="0" cy="0" r="7" fill="#0F172A" stroke="#CBD5E1" stroke-width="2" />
+                </g>
+              </g>
+
+              <!-- Central Interlocking Gear 1 (Clockwise) -->
+              <g transform="translate(772, 351)">
+                <g class="animate-spin-cw svg-origin-center">
+                  <g fill="#64748B" stroke="#94A3B8" stroke-width="1.5">
+                    <rect x="-4" y="-27" width="8" height="54" rx="2" />
+                    <rect x="-27" y="-4" width="54" height="8" rx="2" />
+                    <rect x="-4" y="-27" width="8" height="54" rx="2" transform="rotate(45)" />
+                    <rect x="-4" y="-27" width="8" height="54" rx="2" transform="rotate(-45)" />
+                  </g>
+                  <circle cx="0" cy="0" r="19" fill="#1E293B" stroke="#94A3B8" stroke-width="2.5" />
+                  <line x1="-13" y1="0" x2="13" y2="0" stroke="#38BDF8" stroke-width="2" />
+                  <circle cx="0" cy="0" r="6.5" fill="#0F172A" stroke="#38BDF8" stroke-width="2.5" />
+                </g>
+              </g>
+
+              <!-- Central Interlocking Gear 2 (Counter-Clockwise) -->
+              <g transform="translate(826, 351)">
+                <g class="animate-spin-ccw svg-origin-center">
+                  <g fill="#64748B" stroke="#94A3B8" stroke-width="1.5" transform="rotate(22.5)">
+                    <rect x="-4" y="-27" width="8" height="54" rx="2" />
+                    <rect x="-27" y="-4" width="54" height="8" rx="2" />
+                    <rect x="-4" y="-27" width="8" height="54" rx="2" transform="rotate(45)" />
+                    <rect x="-4" y="-27" width="8" height="54" rx="2" transform="rotate(-45)" />
+                  </g>
+                  <circle cx="0" cy="0" r="19" fill="#1E293B" stroke="#94A3B8" stroke-width="2.5" />
+                  <line x1="0" y1="-13" x2="0" y2="13" stroke="#38BDF8" stroke-width="2" />
+                  <circle cx="0" cy="0" r="6.5" fill="#0F172A" stroke="#38BDF8" stroke-width="2.5" />
+                </g>
+              </g>
+
+              <!-- Roller 3 (Mid Right) -->
+              <g transform="translate(928, 351)">
+                <g class="animate-roller-spin svg-origin-center">
+                  <circle cx="0" cy="0" r="22" fill="#334155" stroke="#94A3B8" stroke-width="3" />
+                  <line x1="-18" y1="0" x2="18" y2="0" stroke="#64748B" stroke-width="2.5" />
+                  <line x1="0" y1="-18" x2="0" y2="18" stroke="#64748B" stroke-width="2.5" />
+                  <circle cx="11" cy="0" r="2.5" fill="#38BDF8" />
+                  <circle cx="0" cy="0" r="7" fill="#0F172A" stroke="#CBD5E1" stroke-width="2" />
+                </g>
+              </g>
+
+              <!-- Roller 4 (Far Right) -->
+              <g transform="translate(1036, 351)">
+                <g class="animate-roller-spin svg-origin-center">
+                  <circle cx="0" cy="0" r="22" fill="#334155" stroke="#94A3B8" stroke-width="3" />
+                  <line x1="-18" y1="0" x2="18" y2="0" stroke="#64748B" stroke-width="2.5" />
+                  <line x1="0" y1="-18" x2="0" y2="18" stroke="#64748B" stroke-width="2.5" />
+                  <circle cx="11" cy="0" r="2.5" fill="#38BDF8" />
+                  <circle cx="0" cy="0" r="7" fill="#0F172A" stroke="#38BDF8" stroke-width="2" />
+                </g>
+              </g>
+
+              <!-- 4 Animated YouTube Cards Gliding Along the Conveyor Belt -->
+              <!-- Card 1 -->
+              <g class="conveyor-clip-1">
+                <g class="animate-clip-bob">
+                  <rect x="0" y="0" width="84" height="62" rx="10" fill="#F8FAFC" stroke="#38BDF8" stroke-width="2" />
+                  <rect x="6" y="6" width="72" height="38" rx="6" fill="#E2E8F0" />
+                  <rect x="27" y="15" width="30" height="20" rx="5" fill="#EF4444" />
+                  <polygon points="39,20 39,30 47,25" fill="#FFFFFF" />
+                  <rect x="8" y="49" width="14" height="7" rx="2" fill="#EF4444" />
+                  <rect x="26" y="50" width="32" height="5" rx="2.5" fill="#94A3B8" />
+                  <rect x="62" y="49" width="15" height="8" rx="2" fill="#334155" />
+                  <text x="69.5" y="55" fill="#FFFFFF" font-family="Inter, sans-serif" font-size="6.5" font-weight="700" text-anchor="middle">0:15</text>
+                </g>
+              </g>
+
+              <!-- Card 2 -->
+              <g class="conveyor-clip-2">
+                <g class="animate-clip-bob" style="animation-delay: 0.4s">
+                  <rect x="0" y="0" width="84" height="62" rx="10" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="2" />
+                  <rect x="6" y="6" width="72" height="38" rx="6" fill="#E2E8F0" />
+                  <rect x="27" y="15" width="30" height="20" rx="5" fill="#EF4444" />
+                  <polygon points="39,20 39,30 47,25" fill="#FFFFFF" />
+                  <rect x="8" y="49" width="14" height="7" rx="2" fill="#EF4444" />
+                  <rect x="26" y="50" width="32" height="5" rx="2.5" fill="#94A3B8" />
+                  <rect x="62" y="49" width="15" height="8" rx="2" fill="#334155" />
+                  <text x="69.5" y="55" fill="#FFFFFF" font-family="Inter, sans-serif" font-size="6.5" font-weight="700" text-anchor="middle">0:30</text>
+                </g>
+              </g>
+
+              <!-- Card 3 -->
+              <g class="conveyor-clip-3">
+                <g class="animate-clip-bob" style="animation-delay: 0.8s">
+                  <rect x="0" y="0" width="84" height="62" rx="10" fill="#F8FAFC" stroke="#38BDF8" stroke-width="2" />
+                  <rect x="6" y="6" width="72" height="38" rx="6" fill="#E2E8F0" />
+                  <rect x="27" y="15" width="30" height="20" rx="5" fill="#EF4444" />
+                  <polygon points="39,20 39,30 47,25" fill="#FFFFFF" />
+                  <rect x="8" y="49" width="14" height="7" rx="2" fill="#EF4444" />
+                  <rect x="26" y="50" width="32" height="5" rx="2.5" fill="#94A3B8" />
+                  <rect x="62" y="49" width="15" height="8" rx="2" fill="#334155" />
+                  <text x="69.5" y="55" fill="#FFFFFF" font-family="Inter, sans-serif" font-size="6.5" font-weight="700" text-anchor="middle">0:45</text>
+                </g>
+              </g>
+
+              <!-- Card 4 -->
+              <g class="conveyor-clip-4">
+                <g class="animate-clip-bob" style="animation-delay: 1.2s">
+                  <rect x="0" y="0" width="84" height="62" rx="10" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="2" />
+                  <rect x="6" y="6" width="72" height="38" rx="6" fill="#E2E8F0" />
+                  <rect x="27" y="15" width="30" height="20" rx="5" fill="#EF4444" />
+                  <polygon points="39,20 39,30 47,25" fill="#FFFFFF" />
+                  <rect x="8" y="49" width="14" height="7" rx="2" fill="#EF4444" />
+                  <rect x="26" y="50" width="32" height="5" rx="2.5" fill="#94A3B8" />
+                  <rect x="62" y="49" width="15" height="8" rx="2" fill="#334155" />
+                  <text x="69.5" y="55" fill="#FFFFFF" font-family="Inter, sans-serif" font-size="6.5" font-weight="700" text-anchor="middle">1:00</text>
+                </g>
+              </g>
+            </g>
+          </svg>
+        </div>
+      </section>
+
+      <!-- TOOL VIEW: EMPTY WORKSPACE AREA + DISCRETE STATUS TAG (Visible when a tool is selected) -->
+      <section id="toolWorkspaceSection" class="hidden flex-1 flex-col justify-between pt-6 pb-1">
+        <!-- Reserved Empty Area for the Tool -->
+        <div id="toolWorkspaceArea" class="relative flex-1 w-full min-h-[62dvh] overflow-hidden rounded-2xl border border-slate-800/80 bg-[#0D1528]/40"></div>
+
+        <!-- Bottom Right Discrete Status Tag (Same position as previous progress pill) -->
+        <div class="shrink-0 pt-4 flex justify-center lg:justify-end lg:pr-8">
+          <div class="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-[#111A2E]/90 border border-slate-700/80 text-slate-300 shadow-lg">
+            <span class="w-2 h-2 rounded-full bg-sky-400"></span>
+            <span id="toolStatusText" class="text-xs sm:text-sm font-medium tracking-wide"></span>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- INTERACTIVE SCRIPT -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const homeConfig = {
+        title: 'Corta, limpa, anima, planeia. Tudo num só sítio.',
+        subtitle: 'Ferramentas para preparar roteiros, legendas e efeitos. Funciona offline e cada ferramenta guarda na sua própria pasta.'
+      };
+
+      const toolConfigs = {
+        separador: {
+          title: 'Divide o roteiro em blocos para a narração',
+          subtitle: 'Corta o texto em partes de até 2200 caracteres sem partir frases, prontas a colar na ferramenta de voz.',
+          status: 'Limite: 2200 caracteres por bloco'
+        },
+        srt: {
+          title: 'Limpa a legenda do TurboScribe',
+          subtitle: 'Remove a marca de água e grava o ficheiro _limpo na tua pasta, em SRT ou TXT.',
+          status: 'Pasta: Download/SRT Clean'
+        },
+        fx: {
+          title: 'Transforma o bloco de efeitos num ficheiro',
+          subtitle: 'Cola o código de animações que a IA te deu e guarda-o como .txt com o nome certo, ex.: L12 FX.txt.',
+          status: 'Pasta: (escolhe uma pasta)'
+        },
+        planeador: {
+          title: 'Planeia os teus vídeos',
+          subtitle: 'Organiza títulos, datas e estado de cada vídeo dos teus canais, sem depender da nuvem.',
+          status: 'Dados guardados neste dispositivo'
+        }
+      };
+
+      const neutralBtnClass = 'nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm text-left transition-opacity duration-200 bg-[#1B253B]/80 hover:bg-[#23314E] text-slate-200 cursor-pointer';
+      const activeBtnClass = 'nav-item active w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-left transition-opacity duration-200 bg-gradient-to-r from-[#3898EC] to-[#2B7DE0] text-white border border-sky-300/60 shadow-[0_0_20px_rgba(56,152,236,0.45)] cursor-pointer';
+
+      const navItems = document.querySelectorAll('.nav-item');
+      const heroTitle = document.getElementById('heroTitle');
+      const heroSubtitle = document.getElementById('heroSubtitle');
+      const homeSceneSection = document.getElementById('homeSceneSection');
+      const toolWorkspaceSection = document.getElementById('toolWorkspaceSection');
+      const toolStatusText = document.getElementById('toolStatusText');
+      const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+      const sidebarNav = document.getElementById('sidebarNav');
+      const homeBtn = document.getElementById('homeBtn');
+      const brandHomeBtn = document.getElementById('brandHomeBtn');
+
+      function closeMobileMenu() {
+        if (window.innerWidth < 1024) {
+          sidebarNav.classList.add('hidden');
+        }
+      }
+
+      function showHome() {
+        navItems.forEach((btn) => {
+          btn.className = neutralBtnClass;
+        });
+
+        heroTitle.textContent = homeConfig.title;
+        heroSubtitle.textContent = homeConfig.subtitle;
+
+        toolWorkspaceSection.classList.add('hidden');
+        toolWorkspaceSection.classList.remove('flex');
+        homeSceneSection.classList.remove('hidden');
+        homeSceneSection.classList.add('flex');
+
+        closeMobileMenu();
+      }
+
+      function activateTool(toolKey) {
+        const config = toolConfigs[toolKey];
+        if (!config) return;
+
+        navItems.forEach((btn) => {
+          btn.className = btn.dataset.tool === toolKey ? activeBtnClass : neutralBtnClass;
+        });
+
+        heroTitle.textContent = config.title;
+        heroSubtitle.textContent = config.subtitle;
+        toolStatusText.textContent = config.status;
+
+        homeSceneSection.classList.add('hidden');
+        homeSceneSection.classList.remove('flex');
+        toolWorkspaceSection.classList.remove('hidden');
+        toolWorkspaceSection.classList.add('flex');
+
+        closeMobileMenu();
+      }
+
+      mobileMenuBtn.addEventListener('click', () => {
+        sidebarNav.classList.toggle('hidden');
+      });
+
+      homeBtn.addEventListener('click', showHome);
+      brandHomeBtn.addEventListener('click', showHome);
+
+      navItems.forEach((btn) => {
+        btn.addEventListener('click', () => activateTool(btn.dataset.tool));
+      });
+
+      // Inicializa explicitamente no Home
+      showHome();
+    });
+  </script>
+
+  <!-- Modal: como instalar -->
+  <div id="installModal" style="display:none" class="fixed inset-0 z-[100] items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="installTitle">
+    <div class="w-full max-w-md rounded-2xl bg-[#0F182B] border border-slate-700/80 p-6 shadow-2xl text-slate-200">
+      <h2 id="installTitle" class="text-lg font-bold text-white">Instalar Auto Editor Tools</h2>
+      <p class="mt-1 text-sm text-slate-400">O teu navegador não ofereceu o botão automático. Faz assim:</p>
+      <ul class="mt-4 space-y-3 text-sm leading-relaxed">
+        <li><span class="font-semibold text-white">Chrome / Quetta no Android:</span> toca no menu ⋮ e escolhe «Instalar app» ou «Adicionar ao ecrã principal».</li>
+        <li><span class="font-semibold text-white">Chrome / Edge no computador:</span> clica no ícone de instalar na barra de endereço, ou no menu ⋮ → «Guardar e partilhar» → «Instalar».</li>
+        <li><span class="font-semibold text-white">iPhone / iPad (Safari):</span> toca em Partilhar → «Adicionar ao ecrã principal».</li>
+      </ul>
+      <p class="mt-4 text-xs text-slate-500">Só é possível instalar quando a página está aberta pelo endereço https (por exemplo, o do GitHub Pages) e não a partir de um ficheiro guardado no telemóvel.</p>
+      <button id="installModalClose" type="button" class="mt-5 w-full py-2.5 rounded-xl bg-[#1B253B] hover:bg-[#23314E] text-sm font-semibold text-white transition cursor-pointer">Fechar</button>
+    </div>
+  </div>
+
+  <script>
+  (function () {
+    var FRAMES = { separador: 'tools/separador.html', srt: 'tools/srt/index.html', fx: 'tools/fx.html', planeador: 'tools/planeador.html' };
+    var area = document.getElementById('toolWorkspaceArea'), made = {}, current = null, timer = null;
+
+    function openFrame(key) {
+      if (!FRAMES[key]) return;
+      if (!made[key]) {
+        var f = document.createElement('iframe');
+        f.src = FRAMES[key]; f.title = key;
+        f.className = 'absolute inset-0 w-full h-full border-0 bg-[#0B1121]';
+        f.setAttribute('allow', 'clipboard-read; clipboard-write');
+        area.appendChild(f); made[key] = f;
+      }
+      Object.keys(made).forEach(function (k) { made[k].style.display = (k === key ? 'block' : 'none'); });
+    }
+
+    // Pasta de cada ferramenta (lida da base de dados própria de cada uma)
+    function readDir(dbName) {
+      return new Promise(function (res) {
+        try {
+          var r = indexedDB.open(dbName);
+          r.onerror = function () { res(null); };
+          r.onsuccess = function () {
+            var db = r.result;
+            if (!db.objectStoreNames.contains('kv')) { db.close(); return res(null); }
+            var q = db.transaction('kv').objectStore('kv').get('dir');
+            q.onsuccess = function () { var v = q.result; db.close(); res(v && v.name ? v.name : null); };
+            q.onerror = function () { db.close(); res(null); };
+          };
+        } catch (e) { res(null); }
+      });
+    }
+    var DBS = { srt: 'srt-clean', fx: 'aet-fx' };
+    function refreshStatus(key) {
+      if (!DBS[key]) return;
+      readDir(DBS[key]).then(function (name) {
+        if (current !== key) return;
+        document.getElementById('toolStatusText').textContent = name ? 'Pasta: …/' + name : 'Pasta: Downloads do navegador (escolhe uma na ferramenta)';
+      });
+    }
+    function track(key) {
+      current = key; clearInterval(timer);
+      if (DBS[key]) { refreshStatus(key); timer = setInterval(function () { refreshStatus(key); }, 2500); }
+    }
+    document.querySelectorAll('.nav-item').forEach(function (b) {
+      b.addEventListener('click', function () { openFrame(b.dataset.tool); track(b.dataset.tool); });
+    });
+    function goHome() { current = null; clearInterval(timer); }
+    document.getElementById('homeBtn').addEventListener('click', goHome);
+    document.getElementById('brandHomeBtn').addEventListener('click', goHome);
+
+    // ---------- Instalação ----------
+    var deferred = null, ib = document.getElementById('installBtn'), hb = document.getElementById('howInstallBtn');
+    var standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+    var settled = false;
+    function updateInstallUI() {
+      if (standalone) { ib.style.display = 'none'; hb.style.display = 'none'; return; }
+      if (deferred) { ib.style.display = 'inline-flex'; hb.style.display = 'none'; }
+      else if (settled) { ib.style.display = 'none'; hb.style.display = 'inline-flex'; }
+    }
+    window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); deferred = e; updateInstallUI(); });
+    window.addEventListener('appinstalled', function () { standalone = true; deferred = null; updateInstallUI(); });
+    setTimeout(function () { settled = true; updateInstallUI(); }, 2500);
+    ib.addEventListener('click', function () {
+      if (!deferred) return;
+      deferred.prompt();
+      deferred.userChoice.then(function () { deferred = null; updateInstallUI(); });
+    });
+    var modal = document.getElementById('installModal');
+    hb.addEventListener('click', function () { modal.style.display = 'flex'; });
+    document.getElementById('installModalClose').addEventListener('click', function () { modal.style.display = 'none'; });
+    modal.addEventListener('click', function (e) { if (e.target === modal) modal.style.display = 'none'; });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') modal.style.display = 'none'; });
+
+    // ---------- Service worker ----------
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function (e) { console.warn('SW falhou:', e); }); });
+    }
+  })();
+  </script>
+</body>
+</html>
