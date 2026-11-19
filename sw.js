@@ -1,8 +1,9 @@
-/* Auto Editor Tools - service worker
-   - Ficheiros da app: REDE PRIMEIRO (atualizações aparecem sozinhas quando há internet)
-     e CACHE se estiveres offline.
-   - Tailwind (CDN): cache primeiro (guardado na 1.ª abertura com internet). */
-const CACHE = 'aet-v4';
+/* Auto Editor Tools - service worker (100% offline)
+   - Tudo é guardado em cache na instalação (1.ª abertura com internet).
+   - Depois, os ficheiros abrem SEMPRE do cache (instantâneo, mesmo sem rede ou com sinal fraco).
+   - Quando há internet, a app atualiza o cache em segundo plano; a versão nova aparece na abertura seguinte.
+   - Para forçar uma atualização geral, aumenta o número em CACHE (ex.: aet-v6). */
+const CACHE = 'aet-v5';
 const ASSETS = [
   "./",
   "fonts/Inter-Bold.woff",
@@ -21,15 +22,17 @@ const ASSETS = [
   "icons/srt-icon-header.png",
   "index.html",
   "manifest.webmanifest",
+  "tw-index.css",
   "tools/fx.html",
+  "tools/fx-tw.css",
   "tools/planeador.html",
   "tools/separador.html",
+  "tools/separador-tw.css",
   "tools/srt-app.css",
   "tools/srt-pwa.js",
   "tools/srt-tw-local.css",
   "tools/srt.html"
 ];
-const EXTERNAL = ['https://cdn.tailwindcss.com'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil((async () => {
@@ -40,10 +43,6 @@ self.addEventListener('install', (e) => {
       if (!r.ok) throw new Error('Falhou: ' + u);
       await c.put(u, r);
     }));
-    for (const url of EXTERNAL) {
-      try { const r = await fetch(url); if (r.ok) { await c.put(url, r); continue; } } catch (_) {}
-      try { const r = await fetch(url, { mode: 'no-cors' }); await c.put(url, r); } catch (_) {}
-    }
     await self.skipWaiting();
   })());
 });
@@ -59,28 +58,18 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET') return;
-  const external = new URL(req.url).origin !== location.origin;
-  if (external && !EXTERNAL.some((u) => req.url.startsWith(u))) return;
+  if (new URL(req.url).origin !== location.origin) return; // nada externo: tudo é local
   e.respondWith((async () => {
     const cache = await caches.open(CACHE);
-    if (external) {
-      const hit = await cache.match(req);
-      if (hit) return hit;
-      try { const r = await fetch(req); if (r && (r.ok || r.type === 'opaque')) cache.put(req, r.clone()); return r; }
-      catch (_) { return Response.error(); }
-    }
-    try {
-      const res = await Promise.race([
-        fetch(req, { cache: 'no-cache' }),
-        new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 4000))
-      ]);
-      if (res && res.ok) cache.put(req, res.clone());
-      return res;
-    } catch (_) {
-      const hit = await cache.match(req, { ignoreSearch: true });
-      if (hit) return hit;
-      if (req.mode === 'navigate') { const idx = await cache.match('index.html'); if (idx) return idx; }
-      return Response.error();
-    }
+    const hit = await cache.match(req, { ignoreSearch: true });
+    // atualização em segundo plano (só se houver rede); falha em silêncio quando offline
+    const refresh = fetch(req, { cache: 'no-cache' })
+      .then((res) => { if (res && res.ok) cache.put(req, res.clone()); return res; })
+      .catch(() => null);
+    if (hit) { e.waitUntil(refresh); return hit; }
+    const res = await refresh;
+    if (res) return res;
+    if (req.mode === 'navigate') { const idx = await cache.match('index.html'); if (idx) return idx; }
+    return Response.error();
   })());
 });

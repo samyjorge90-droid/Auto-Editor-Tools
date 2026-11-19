@@ -10,75 +10,8 @@
   <link rel="icon" type="image/png" href="icons/favicon-64.png">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="stylesheet" href="fonts/fonts.css">
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="tw-index.css">
   <!-- Google Fonts: Inter -->
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-          },
-          colors: {
-            navy: {
-              950: '#060c18',
-              900: '#0b1628',
-              850: '#101B33',
-              800: '#16233E',
-              700: '#213356',
-            },
-          },
-          animation: {
-            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-            'yt-float': 'ytFloat 3.4s ease-in-out infinite',
-            'spin-cw': 'spinCw 3.2s linear infinite',
-            'spin-ccw': 'spinCcw 3.2s linear infinite',
-            'roller-spin': 'spinCw 2.4s linear infinite',
-            'head-bob': 'headBob 2.4s ease-in-out infinite',
-            'type-left': 'typeHand 0.42s ease-in-out infinite alternate',
-            'type-right': 'typeHand 0.42s ease-in-out 0.21s infinite alternate',
-            'blink': 'blinkEye 4.2s infinite',
-            'belt-slats': 'beltSlats 0.85s linear infinite',
-            'clip-bob': 'clipBob 2.2s ease-in-out infinite',
-          },
-          keyframes: {
-            ytFloat: {
-              '0%, 100%': { transform: 'translate(765px, 64px)' },
-              '50%': { transform: 'translate(765px, 50px)' },
-            },
-            spinCw: {
-              '0%': { transform: 'rotate(0deg)' },
-              '100%': { transform: 'rotate(360deg)' },
-            },
-            spinCcw: {
-              '0%': { transform: 'rotate(360deg)' },
-              '100%': { transform: 'rotate(0deg)' },
-            },
-            headBob: {
-              '0%, 100%': { transform: 'translateY(0px) rotate(-1.5deg)' },
-              '50%': { transform: 'translateY(3.5px) rotate(3deg)' },
-            },
-            typeHand: {
-              '0%': { transform: 'translateY(0px)' },
-              '100%': { transform: 'translateY(-4px)' },
-            },
-            blinkEye: {
-              '0%, 88%, 100%': { transform: 'scaleY(1)' },
-              '92%, 95%': { transform: 'scaleY(0.08)' },
-            },
-            beltSlats: {
-              '0%': { transform: 'translateX(0px)' },
-              '100%': { transform: 'translateX(30px)' },
-            },
-            clipBob: {
-              '0%, 100%': { transform: 'translateY(0px)' },
-              '50%': { transform: 'translateY(-3px)' },
-            }
-          }
-        },
-      },
-    };
-  </script>
   <style>
     html, body {
       width: 100vw;
@@ -901,6 +834,9 @@ body.in-tool #toolStatusText{display:block;max-width:44vw;overflow:hidden;text-o
     document.getElementById('installModalClose').addEventListener('click', function () { modal.style.display = 'none'; });
     modal.addEventListener('click', function (e) { if (e.target === modal) modal.style.display = 'none'; });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') modal.style.display = 'none'; });
+
+    // ---------- Armazenamento persistente (o Android não apaga o cache nem a pasta guardada) ----------
+    try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
 
     // ---------- Service worker ----------
     if ('serviceWorker' in navigator) {
